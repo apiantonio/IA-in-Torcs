@@ -105,8 +105,7 @@ public class ContinuousCharReaderUI extends JFrame {
             brake = brake > 1.0 ? 1.0 : brake;
         } else { 
             // se non sto premendo né w né s decelera e resetta il freno
-            accel -= 0.3; // ?È utile? forse si può mettere a 0
-            accel = accel < 0.0 ? 0.0 : accel;
+            accel = 0.0; 
             brake = 0.0;
         } 
         

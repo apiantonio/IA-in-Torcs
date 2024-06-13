@@ -189,23 +189,26 @@ public class SimpleDriver extends Controller {
        
         double accel = ccr.getAccel(); // accelerazione calcolata in base al tasto premuto
         double brake = ccr.getBrake(); // valore del freno
-        int gear;
+        int gear = getGear(sensors); // calcola la marcia
         //float accel_and_brake = getAccel(sensors); // accelerazione/frenata
-
-        // se si vuole frenare allora applico l'ABS
+       
+        // se brake != 0 allora si sta premendo 's' per frenare o andare in retromarcia
         if (brake != 0) {
-            // si vuole frenare
-            accel = 0;
-            // Applicare l'ABS al freno
-            brake = filterABS(sensors, brake);
-        }
-        
-        if (brake !=0 && sensors.getSpeed() == 0) {
-            gear = -1;
-            brake = 0.0;
-            accel = 1.0;
-        } else {
-            gear = getGear(sensors); // calcola la marcia
+            // se si è prossimi a fermarsi allora mette la retromarcia
+            if (sensors.getSpeed() <= 0) { 
+                gear = -1;
+                brake = 0.0;
+                accel = 1.0;
+            } else { // si vuole frenare
+                // se si vuole frenare  allora applico l'ABS
+                accel = 0;
+                // Applicare l'ABS al freno
+                brake = filterABS(sensors, brake);
+            }
+        } else if (sensors.getSpeed() < 0) {
+            // se brake == 0.0 allora vogliamo andare avanti
+            // ma stavamo andando in retromarcia (speed <0) allora prima mi fermo per poi andare in avanti 
+            brake = 1.0;
         }
 
         action.accelerate = accel;
