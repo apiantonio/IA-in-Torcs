@@ -200,14 +200,14 @@ public class SimpleDriver extends Controller {
                 brake = 0.0;
                 accel = 1.0;
             } else { // si vuole frenare
-                // se si vuole frenare  allora applico l'ABS
+                // se si vuole frenare allora applico l'ABS
                 accel = 0;
                 // Applicare l'ABS al freno
                 brake = filterABS(sensors, brake);
             }
         } else if (sensors.getSpeed() < 0) {
-            // se brake == 0.0 allora vogliamo andare avanti
-            // ma stavamo andando in retromarcia (speed <0) allora prima mi fermo per poi andare in avanti 
+            // se brake == 0.0 allora vogliamo andare avanti ma 
+            // stavamo andando in retromarcia (speed < 0) allora prima freno e poi andarà in avanti 
             brake = 1.0;
         }
 
