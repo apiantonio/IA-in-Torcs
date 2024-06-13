@@ -34,7 +34,7 @@ public class SimpleDriver extends Controller {
 
     /* Costanti di accelerazione e di frenata */
     final float maxSpeedDist = 70;
-    final float maxSpeed = 150;
+    final float maxSpeed = 500; // originale 150
     final float sin5 = (float) 0.08716;
     final float cos5 = (float) 0.99619;
 
@@ -173,7 +173,8 @@ public class SimpleDriver extends Controller {
              * e quella attuale
              */
             return (float) (2 / (1 + Math.exp(sensors.getSpeed() - targetSpeed)) - 1);
-        } else // Quando si esce dalla carreggiata restituisce un comando di accelerazione moderata
+        } 
+        else // Quando si esce dalla carreggiata restituisce un comando di accelerazione moderata
         {
             return (float) 0.3;
         }
@@ -187,24 +188,31 @@ public class SimpleDriver extends Controller {
         Action action = new Action();
        
         double accel = ccr.getAccel(); // accelerazione calcolata in base al tasto premuto
-        float accel_and_brake = getAccel(sensors); // accelerazione/frenata
-        double brake; // valore del freno
+        double brake = ccr.getBrake(); // valore del freno
+        int gear;
+        //float accel_and_brake = getAccel(sensors); // accelerazione/frenata
 
-        if (accel_and_brake > 0) {
-            // se accel_and_brake è > 0 allora non si vuole frenare
-            brake = 0;
-        } else {
+        // se si vuole frenare allora applico l'ABS
+        if (brake != 0) {
             // si vuole frenare
             accel = 0;
             // Applicare l'ABS al freno
-            brake = filterABS(sensors, -accel_and_brake);
-        }   
+            brake = filterABS(sensors, brake);
+        }
         
+        if (brake !=0 && sensors.getSpeed() == 0) {
+            gear = -1;
+            brake = 0.0;
+            accel = 1.0;
+        } else {
+            gear = getGear(sensors); // calcola la marcia
+        }
+
         action.accelerate = accel;
-        action.steering = ccr.getSteer(); // sterzata calcolata in base al tasto premuto
         action.brake = brake;
-        action.gear = getGear(sensors); 
-        action.clutch = clutching(sensors, clutch);
+        action.steering = ccr.getSteer(); // sterzata calcolata in base al tasto premuto
+        action.gear = gear;
+        action.clutch = clutching(sensors, clutch); // calcola la frizione
 
         printToCSV(sensors, action);
 
@@ -307,9 +315,10 @@ public class SimpleDriver extends Controller {
     private void printToCSV(SensorModel sensors, Action action) {
         // Ottieni il tempo corrente
         long currentTime = System.currentTimeMillis();
-    
-        // Scrivo una riga sul file CSV ogni mezzo secondo
-        if (currentTime - lastTimeWroteCSV >= 500) {
+        int deltaMillis = 300;
+
+        // Scrivo una riga sul file CSV delta millisecondi
+        if (currentTime - lastTimeWroteCSV >= deltaMillis) {
 
             // Try-with-resources per la gestione del file
             try (PrintWriter csvWriter = new PrintWriter(new FileWriter("../src/scr/dataset.csv", true))) {
@@ -344,8 +353,8 @@ public class SimpleDriver extends Controller {
         }
     }
     
-
-    private float filterABS(SensorModel sensors, float brake) {
+          //float                               //float               
+    private double filterABS(SensorModel sensors, double brake) {
         // Converte la velocità in m/s
         float speed = (float) (sensors.getSpeed() / 3.6);
 
@@ -419,8 +428,7 @@ public class SimpleDriver extends Controller {
      * una configurazione personalizzata dei sensori di pista: il metodo restituisce un vettore dei 
      * 19 angoli desiderati (rispetto all'asse della vettura) per ciascuno dei 19 telemetri del sensore «Track»
      */
-    // È possibile sovrascrivere con una propria 
-    // implementazione la funzione
+    // È possibile sovrascrivere con una propria implementazione la funzione
     @Override
     public float[] initAngles() {
         

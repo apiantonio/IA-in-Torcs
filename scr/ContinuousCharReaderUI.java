@@ -15,9 +15,10 @@ public class ContinuousCharReaderUI extends JFrame {
     private boolean sPressed = false;
     private boolean dPressed = false;
 
-    // Valori di accelerazione e sterzata da passare al driver
+    // Valori di accelerazione, sterzata e freno da passare al driver
     private double accel = 0.0;
     private double steer = 0.0;
+    private double brake = 0.0;
 
     public ContinuousCharReaderUI(SimpleDriver driver) { // aggiunto un SimpleDriver come argomento
         this.driver = driver;
@@ -96,27 +97,31 @@ public class ContinuousCharReaderUI extends JFrame {
             // in simpledriver dovrà calcolare brake
         if (wPressed) {
             // se premo w allora accelera gradualmente, tetto massimo 1.0 
-            accel = accel > 1.0 ? 1.0 : accel + 0.3;
+            accel += 0.3;
+            accel = accel > 1.0 ? 1.0 : accel;
         } else if (sPressed) {
-            // se premo s decelera gradualmente, minimo 0.0
-            accel = accel < 0 ? 0.0 : accel - 0.3;
-        } else {
-            // se non sto premendo né w né s allora decelera
-            accel -= 0.5;
-            if (accel < 0) {
-                accel = 0.0;
-            }
-        }
+            // se premo s frena, massimo 1.0
+            brake += 0.2;
+            brake = brake > 1.0 ? 1.0 : brake;
+        } else { 
+            // se non sto premendo né w né s decelera e resetta il freno
+            accel -= 0.3; // ?È utile? forse si può mettere a 0
+            accel = accel < 0.0 ? 0.0 : accel;
+            brake = 0.0;
+        } 
         
         // la sterzata va da -1.0 (tutto a dx) a +1.0 (tutto a sx)
         if (aPressed) {
             // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
-            steer = steer > 1.0 ? 1.0 : steer + 0.3;
+            steer += 0.3;
+            steer = steer > 1.0 ? 1.0 : steer;
         } else if (dPressed) {
             // se premo d allora sterza verso destra gradualemnte, massimo -1.0
-            steer = steer < -1.0 ? -1.0 : steer - 0.3;
+            steer -= 0.3;
+            steer = steer < -1.0 ? -1.0 : steer;
         } else {
-            steer = 0.0; // ?troppo di botto?
+            // se non sto sterzando allora porta la sterzata a 0
+            steer = 0.0;
         }
     }
 
@@ -126,5 +131,9 @@ public class ContinuousCharReaderUI extends JFrame {
 
     public double getSteer() {
         return steer;
+    }
+
+    public double getBrake() {
+        return brake;
     }
 }
