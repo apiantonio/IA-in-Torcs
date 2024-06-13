@@ -15,6 +15,11 @@ public class ContinuousCharReaderUI extends JFrame {
     private boolean sPressed = false;
     private boolean dPressed = false;
 
+    // costanti di utilità
+    private final double DELTA_ACCEL = 0.3;
+    private final double DELTA_STEER = 0.2;
+    private final double DELTA_BRAKE = 0.3;
+
     // Valori di accelerazione, sterzata e freno da passare al driver
     private double accel = 0.0;
     private double steer = 0.0;
@@ -97,11 +102,11 @@ public class ContinuousCharReaderUI extends JFrame {
             // in simpledriver dovrà calcolare brake
         if (wPressed) {
             // se premo w allora accelera gradualmente, tetto massimo 1.0 
-            accel += 0.3;
+            accel += DELTA_ACCEL;
             accel = accel > 1.0 ? 1.0 : accel;
         } else if (sPressed) {
             // se premo s frena, massimo 1.0
-            brake += 0.2;
+            brake += DELTA_BRAKE;
             brake = brake > 1.0 ? 1.0 : brake;
         } else { 
             // se non sto premendo né w né s decelera e resetta il freno
@@ -112,11 +117,11 @@ public class ContinuousCharReaderUI extends JFrame {
         // la sterzata va da -1.0 (tutto a dx) a +1.0 (tutto a sx)
         if (aPressed) {
             // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
-            steer += 0.3;
+            steer += DELTA_STEER;
             steer = steer > 1.0 ? 1.0 : steer;
         } else if (dPressed) {
             // se premo d allora sterza verso destra gradualemnte, massimo -1.0
-            steer -= 0.3;
+            steer -= DELTA_STEER;
             steer = steer < -1.0 ? -1.0 : steer;
         } else {
             // se non sto sterzando allora porta la sterzata a 0
