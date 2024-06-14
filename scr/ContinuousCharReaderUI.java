@@ -25,9 +25,7 @@ public class ContinuousCharReaderUI extends JFrame {
     private double steer = 0.0;
     private double brake = 0.0;
 
-    public ContinuousCharReaderUI(SimpleDriver driver) { // aggiunto un SimpleDriver come argomento
-        this.driver = driver;
-
+    public ContinuousCharReaderUI() { 
         // Set up the frame
         setTitle("Continuous Character Reader");
         setSize(300, 100);

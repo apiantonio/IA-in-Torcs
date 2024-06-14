@@ -71,7 +71,7 @@ public class SimpleDriver extends Controller {
     /* Nel costruttore chiamo il char reader */    
     public SimpleDriver() {
         // Thread esterno che lancia il char reader per l'interazione da tastiera
-        SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(this); });
+        SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); });
     }
 
     // il metodo viene chiamato quando il client vuole inoltrare una richiesta di riavvio della 
