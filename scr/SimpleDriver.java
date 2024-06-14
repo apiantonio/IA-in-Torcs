@@ -186,7 +186,35 @@ public class SimpleDriver extends Controller {
     public Action control(SensorModel sensors) {
         // azione da intraprendere
         Action action = new Action();
-       
+
+        boolean wPressed = ccr.wPressed();
+        boolean aPressed = ccr.aPressed();
+        boolean sPressed = ccr.sPressed();
+        boolean dPressed = ccr.dPressed();
+
+        int cls = 0; // non sta premendo nulla
+        if (wPressed) {
+            if (aPressed) {
+                cls = 5; // wa
+            } else if (dPressed) {
+                cls = 6; // wd
+            } else {
+                cls = 1; // w
+            }
+        } else if (sPressed) {
+            if (aPressed) {
+                cls = 7; // sa
+            } else if (dPressed) {
+                cls = 8; // sd
+            } else {
+                cls = 3; // s
+            }
+        } else if (aPressed) {
+            cls = 2; // a
+        } else if (dPressed) {
+            cls = 4; // d
+        }
+    
         double accel = ccr.getAccel(); // accelerazione calcolata in base al tasto premuto
         double brake = ccr.getBrake(); // valore del freno
         int gear = getGear(sensors); // calcola la marcia
@@ -217,7 +245,7 @@ public class SimpleDriver extends Controller {
         action.gear = gear;
         action.clutch = clutching(sensors, clutch); // calcola la frizione
 
-        printToCSV(sensors, action);
+        printToCSV(sensors, action, cls);
 
         return action;
 
@@ -315,7 +343,7 @@ public class SimpleDriver extends Controller {
         // }
     }
 
-    private void printToCSV(SensorModel sensors, Action action) {
+    private void printToCSV(SensorModel sensors, Action action, int cls) {
         // Ottieni il tempo corrente
         long currentTime = System.currentTimeMillis();
         int deltaMillis = 300;
@@ -331,22 +359,25 @@ public class SimpleDriver extends Controller {
     
                 // Se il file non esisteva o era vuoto scrivo l'intestazione
                 if (!fileExists || file.length() == 0) {
-                    csvWriter.println("angleToTrackAxis,trackPosition,rxSensor,ctrSensor,sxSensor,rpm,gear,steering,accelerate,brake,clutch");
+                    csvWriter.println("angleToTrackAxis,trackPosition,rxSensor,ctrSensor,sxSensor,rpm,gear,steering,accelerate,brake,clutch,class");
                 }
     
                 // Scrivi l'azione nel file CSV
-                csvWriter.printf(Locale.US,"%f,%f,%f,%f,%f,%f,%d,%f,%f,%f,%f\n",
+                csvWriter.printf(Locale.US,"%f,%f,%f,%f,%f,%f,%d,%f,%f,%f,%f,%d\n",
                     sensors.getAngleToTrackAxis(),
                     sensors.getTrackPosition(),
                     sensors.getTrackEdgeSensors()[10], // rxSensor
                     sensors.getTrackEdgeSensors()[9], // ctr
                     sensors.getTrackEdgeSensors()[8], // sx
                     sensors.getRPM(),
+                    
                     action.gear,
                     action.steering, 
                     action.accelerate, 
                     action.brake, 
-                    action.clutch
+                    action.clutch,
+
+                    cls // classe
                 );
     
                 lastTimeWroteCSV = currentTime; // aggiorno la variabile

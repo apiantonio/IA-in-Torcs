@@ -7,8 +7,7 @@ import javax.swing.*;
 
 public class ContinuousCharReaderUI extends JFrame {
     private JTextField inputField;
-    private SimpleDriver driver; // driver da passare
-
+ 
     // Booleani per indicare quale tasto è stato cliccato 
     private boolean wPressed = false;
     private boolean aPressed = false;
@@ -138,4 +137,22 @@ public class ContinuousCharReaderUI extends JFrame {
     public double getBrake() {
         return brake;
     }
+
+
+    public boolean wPressed() {
+        return wPressed;
+    }
+
+    public boolean aPressed() {
+        return aPressed;
+    }
+
+    public boolean sPressed() {
+        return sPressed;
+    }
+
+    public boolean dPressed() {
+        return dPressed;
+    }
+
 }
