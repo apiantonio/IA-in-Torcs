@@ -223,7 +223,7 @@ public class SimpleDriver extends Controller {
         // se brake != 0 allora si sta premendo 's' per frenare o andare in retromarcia
         if (brake != 0) {
             // se si è prossimi a fermarsi allora mette la retromarcia
-            if (sensors.getSpeed() <= 0) { 
+            if (sensors.getSpeed() <= 5) { 
                 gear = -1;
                 brake = 0.0;
                 accel = 1.0;

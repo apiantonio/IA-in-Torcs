@@ -9,7 +9,7 @@ import java.util.PriorityQueue;
 KD-Tree for an efficient implementation of the K-NN.
 Do not touch!
 
-CLASSE ADATTATA ALLA NOSTRA IMPLEMENTAZIONE DI SAMPLE
+CLASSE ADATTATA ALLA NOSTRA IMPLEMENTAZIONE DI SAMPLE e dunque alle nostre features
 */
 class KDTree {
 
