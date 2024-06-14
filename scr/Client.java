@@ -1,17 +1,13 @@
 /**
- * La classe consente la comunicazione con il BotServer
-tramite una serie di parametri. 
-Gli obbligatori sono:
-• l'indirizzo IP della macchina su cui è in esecuzione il 
-server TORCS (il valore predefinito è localhost)
-• la porta su cui il server-bot è in ascolto, i valori sono 
-da 3001 (il valore predefinito è 3001)
-• Remainder: quando attivi sul server scr_server1, ti 
-metti in attesa di un client sulla porta 3001, se attivi 
-scr_server2 ti metti in ascolto su 3002 ecc.
-• Client
-* 
-NB: La classe è già implementata e non richiede alcuna modifica
+ * La classe consente la comunicazione con il BotServer tramite una serie di parametri. 
+ * Gli obbligatori sono:
+ * • l'indirizzo IP della macchina su cui è in esecuzione il server TORCS (il valore predefinito è localhost)
+ * • la porta su cui il server-bot è in ascolto, i valori sono da 3001 (il valore predefinito è 3001)
+ * • Remainder: quando attivi sul server scr_server1, ti metti in attesa di un client sulla porta 3001, se attivi 
+ *   scr_server2 ti metti in ascolto su 3002 ecc.
+ * • Client
+ * 
+ *   NB: La classe è già implementata e non richiede alcuna modifica
  */
 package scr;
 

@@ -1,15 +1,12 @@
 /**
- * La classe istanzia la comunicazione tramite Socket con il 
-server.
-Definisce le funzioni per:
-• Inizializzazione della comunicazione UDP
-• Ricezione pacchetto dati (es: dai sensori)
-• Invio del pacchetto dati (azioni da intraprendere)
-
-* 
-* NB: La classe è già implementata e non richiede alcuna modifica
-
-*/
+ * La classe istanzia la comunicazione tramite Socket con il server.
+ * Definisce le funzioni per:
+ * • Inizializzazione della comunicazione UDP
+ * • Ricezione pacchetto dati (es: dai sensori)
+ * • Invio del pacchetto dati (azioni da intraprendere)
+ * 
+ *  NB: La classe è già implementata e non richiede alcuna modifica
+ */
 package scr;
 
 import java.io.IOException;
