@@ -15,9 +15,9 @@ public class ContinuousCharReaderUI extends JFrame {
     private boolean dPressed = false;
 
     // costanti di utilità
-    private static final double DELTA_ACCEL = 0.3;
-    private static final double DELTA_STEER = 0.1;
-    private static final double DELTA_BRAKE = 0.3;
+    public static final double DELTA_ACCEL = 0.3;
+    public static final double DELTA_STEER = 0.1;
+    public static final double DELTA_BRAKE = 0.3;
 
     // Valori di accelerazione, sterzata e freno da passare al driver
     private double accel = 0.0;

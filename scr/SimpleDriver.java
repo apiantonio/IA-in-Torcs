@@ -20,7 +20,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
-import javax.swing.SwingUtilities;
 
 public class SimpleDriver extends Controller {
   
@@ -62,16 +61,18 @@ public class SimpleDriver extends Controller {
     private int stuck = 0;
 
     // current clutch
-    private float clutch = 0;
+    private double clutch = 0;
 
     private ContinuousCharReaderUI ccr; // char reader automatico da cui leggiamo il tasto premuto 
-    long lastTimeWroteCSV = 0; // variabile per salvare quando è stata scritta l'ultima riga del CSV 
-        
+    private long lastTimeWroteCSV = 0; // variabile per salvare quando è stata scritta l'ultima riga del CSV 
+    // azione da intrapredere a seconda della classe predetta
+    private Action actionTodo = new Action();
+
 
     /* Nel costruttore chiamo il char reader */    
     public SimpleDriver() {
         // Thread esterno che lancia il char reader per l'interazione da tastiera
-        SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); });
+    //    SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); }); 
     }
 
     // il metodo viene chiamato quando il client vuole inoltrare una richiesta di riavvio della 
@@ -180,9 +181,163 @@ public class SimpleDriver extends Controller {
         }
     }
 
+    // metodo control da usare nella fase operativa
+    @Override
+    public Action control(SensorModel sensors) {
+ 
+        // prendo i dati dei sensori per classificarli
+        double angleToTrackAxis = sensors.getAngleToTrackAxis();
+        double trackPosition = sensors.getTrackPosition();
+        double trackEdgeSensor14 = sensors.getTrackEdgeSensors()[14];
+        double trackEdgeSensor13 = sensors.getTrackEdgeSensors()[13];
+        double trackEdgeSensor12 = sensors.getTrackEdgeSensors()[12]; 
+        double trackEdgeSensor11 = sensors.getTrackEdgeSensors()[11];
+        double trackEdgeSensor10 = sensors.getTrackEdgeSensors()[10]; // rx
+        double trackEdgeSensor9 = sensors.getTrackEdgeSensors()[9]; // sensore centrale
+        double trackEdgeSensor8 = sensors.getTrackEdgeSensors()[8]; // sx
+        double trackEdgeSensor7 = sensors.getTrackEdgeSensors()[7];
+        double trackEdgeSensor6 = sensors.getTrackEdgeSensors()[6]; 
+        double trackEdgeSensor5 = sensors.getTrackEdgeSensors()[5]; 
+        double trackEdgeSensor4 = sensors.getTrackEdgeSensors()[4];
+        double rpm = sensors.getRPM();
+        double xSpeed = sensors.getSpeed(); // x speed
+        double ySpeed = sensors.getLateralSpeed(); // y speed
+
+        int predictedClass;
+        
+        // creo sample coi dati, lo classifico e a seconda della classe predetta eseguo l'azione corrispondente
+        Sample testSample = new Sample(
+            angleToTrackAxis,
+            trackPosition,
+            trackEdgeSensor14,
+            trackEdgeSensor13,
+            trackEdgeSensor12,
+            trackEdgeSensor11,
+            trackEdgeSensor10,
+            trackEdgeSensor9,
+            trackEdgeSensor8,
+            trackEdgeSensor7,
+            trackEdgeSensor6,
+            trackEdgeSensor5,
+            trackEdgeSensor4,
+            rpm,
+            xSpeed,
+            ySpeed
+        );
+
+        // predici classe del sample
+        predictedClass = Classificatore.classifica(testSample);
+
+        // i valori dell'ultima azione eseguita
+        double accel = actionTodo.accelerate;
+        double steer = actionTodo.steering;
+        double brake = actionTodo.brake;
+
+        clutch = clutching(sensors, clutch); // calcola la frizione
+        int gear = getGear(sensors); // calcola la marcia
+
+        // valori dell'azione a seconda della classe predetta 
+        switch (predictedClass) {
+            // nessun tasto premuto
+            case 0 -> {
+                return actionTodo; // azione nulla
+            }
+            // premuto w
+            case 1 -> {
+                accel += ContinuousCharReaderUI.DELTA_ACCEL;
+                accel = accel > 1.0 ? 1.0 : accel;
+                steer = 0.0;
+                brake = 0.0;
+            }
+            // premo a
+            case 2 -> {
+                accel = 0.0; 
+                steer += ContinuousCharReaderUI.DELTA_STEER;
+                steer = steer > 1.0 ? 1.0 : steer;
+                brake = 0.0;
+            }
+            // premo s
+            case 3 -> {
+                accel = 0.0;
+                steer = 0.0;
+                brake += ContinuousCharReaderUI.DELTA_BRAKE;
+                brake = brake > 1.0 ? 1.0 : brake;
+            }
+            // premo d
+            case 4 -> {
+                accel = 0.0; 
+                steer -= ContinuousCharReaderUI.DELTA_STEER;
+                steer = steer < -1.0 ? -1.0 : steer;
+                brake = 0.0;
+            }
+            // premo w e a 
+            case 5 -> {
+                accel += ContinuousCharReaderUI.DELTA_ACCEL;
+                accel = accel > 1.0 ? 1.0 : accel;
+                steer += ContinuousCharReaderUI.DELTA_STEER;
+                steer = steer > 1.0 ? 1.0 : steer;
+                brake = 0.0;
+            }
+            // premo w e d
+            case 6 -> {
+                accel += ContinuousCharReaderUI.DELTA_ACCEL;
+                accel = accel > 1.0 ? 1.0 : accel;
+                steer -= ContinuousCharReaderUI.DELTA_STEER;
+                steer = steer < -1.0 ? -1.0 : steer;
+                brake = 0.0;
+            }
+            // premo s e a
+            case 7 -> {
+                accel = 0.0; 
+                steer += ContinuousCharReaderUI.DELTA_STEER;
+                steer = steer > 1.0 ? 1.0 : steer;
+                brake += ContinuousCharReaderUI.DELTA_BRAKE;
+                brake = brake > 1.0 ? 1.0 : brake;
+            }
+            // premo s e d
+            case 8 -> {
+                accel = 0.0; 
+                steer -= ContinuousCharReaderUI.DELTA_STEER;
+                steer = steer < -1.0 ? -1.0 : steer;
+                brake += ContinuousCharReaderUI.DELTA_BRAKE;
+                brake = brake > 1.0 ? 1.0 : brake;
+            }
+            default -> throw new AssertionError();
+        }
+        
+       
+        // se brake != 0 allora si sta premendo 's' per frenare o andare in retromarcia
+        if (brake != 0) {
+            // se si è prossimi a fermarsi allora mette la retromarcia
+            if (sensors.getSpeed() <= 5) { 
+                gear = -1;
+                brake = 0.0;
+                accel = 1.0;
+            } else { // si vuole frenare
+                // se si vuole frenare allora applico l'ABS
+                accel = 0;
+                // Applicare l'ABS al freno
+                brake = filterABS(sensors, brake);
+            }
+        } else if (sensors.getSpeed() < 0) {
+            // se brake == 0.0 allora vogliamo andare avanti ma 
+            // stavamo andando in retromarcia (speed < 0) allora prima freno e poi andarà in avanti 
+            brake = 1.0;
+        }
+
+        actionTodo.accelerate = accel;
+        actionTodo.steering = steer;
+        actionTodo.brake = brake;
+        actionTodo.clutch = clutch; 
+        actionTodo.gear = gear;
+        
+        return actionTodo;
+    }
+
+    // metodo control da usare per creare il dataset
     // sensors rappresenta lo stato attuale del gioco come percepito dal driver; il metodo 
     // restituisce l'azione da intraprendere
-    @Override
+   /*  @Override
     public Action control(SensorModel sensors) {
         // azione da intraprendere
         Action action = new Action();
@@ -245,11 +400,12 @@ public class SimpleDriver extends Controller {
         action.gear = gear;
         action.clutch = clutching(sensors, clutch); // calcola la frizione
 
-        printToCSV(sensors, action, cls);
+        printToCSV(sensors, cls);
 
         return action;
+    } */
 
-        // // Controlla se l'auto è attualmente bloccata
+    // // Controlla se l'auto è attualmente bloccata
         // /**
         //  * Se l'auto ha un angolo, rispetto alla traccia, superiore a 30° incrementa "stuck" che è una variabile che indica per
         //  * quanti cicli l'auto è in condizione di difficoltà. Quando l'angolo si riduce, "stuck" viene riportata a 0 per indicare
@@ -341,42 +497,47 @@ public class SimpleDriver extends Controller {
             
         //     return action;
         // }
-    }
+    // }
 
-    private void printToCSV(SensorModel sensors, Action action, int cls) {
+    // stampa una nuova riga nel dataset
+    private void printToCSV(SensorModel sensors, int cls) {
         // Ottieni il tempo corrente
         long currentTime = System.currentTimeMillis();
         int deltaMillis = 300;
+        String datasetPath = "../src/dataset.csv"; // path del file CSV in cui salviamo i dati
 
         // Scrivo una riga sul file CSV delta millisecondi
         if (currentTime - lastTimeWroteCSV >= deltaMillis) {
 
             // Try-with-resources per la gestione del file
-            try (PrintWriter csvWriter = new PrintWriter(new FileWriter("../src/scr/dataset.csv", true))) {
+            try (PrintWriter csvWriter = new PrintWriter(new FileWriter(datasetPath, true))) {
                 // Controllo se il file esiste già
-                File file = new File("../src/scr/dataset.csv");
+                File file = new File(datasetPath);
                 boolean fileExists = file.exists();
     
                 // Se il file non esisteva o era vuoto scrivo l'intestazione
                 if (!fileExists || file.length() == 0) {
-                    csvWriter.println("angleToTrackAxis,trackPosition,rxSensor,ctrSensor,sxSensor,rpm,gear,steering,accelerate,brake,clutch,class");
+                    csvWriter.println("angleToTrackAxis,trackPosition,14Sensor,13Sensor,12Sensor,11Sensor,rxSensor,ctrSensor,sxSensor,7Sensor,6Sensor,5Sensor,4Sensor,rpm,xSpeed,ySpeed,class");
                 }
     
                 // Scrivi l'azione nel file CSV
-                csvWriter.printf(Locale.US,"%f,%f,%f,%f,%f,%f,%d,%f,%f,%f,%f,%d\n",
+                csvWriter.printf(Locale.US,"%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n",
                     sensors.getAngleToTrackAxis(),
                     sensors.getTrackPosition(),
-                    sensors.getTrackEdgeSensors()[10], // rxSensor
-                    sensors.getTrackEdgeSensors()[9], // ctr
-                    sensors.getTrackEdgeSensors()[8], // sx
+                    sensors.getTrackEdgeSensors()[14], // -30
+                    sensors.getTrackEdgeSensors()[13], // -20
+                    sensors.getTrackEdgeSensors()[12], // -15
+                    sensors.getTrackEdgeSensors()[11], // -10
+                    sensors.getTrackEdgeSensors()[10], // rx -5
+                    sensors.getTrackEdgeSensors()[9], // ctr 0
+                    sensors.getTrackEdgeSensors()[8], // sx +5
+                    sensors.getTrackEdgeSensors()[7], // 10
+                    sensors.getTrackEdgeSensors()[6], // 15
+                    sensors.getTrackEdgeSensors()[5], // 20
+                    sensors.getTrackEdgeSensors()[4], // 30
                     sensors.getRPM(),
-                    
-                    action.gear,
-                    action.steering, 
-                    action.accelerate, 
-                    action.brake, 
-                    action.clutch,
-
+                    sensors.getSpeed(), // velocità lungo l'asse x
+                    sensors.getLateralSpeed(), // veloxità lungo l'asse y
                     cls // classe
                 );
     
@@ -419,7 +580,8 @@ public class SimpleDriver extends Controller {
         }
    }
 
-    float clutching(SensorModel sensors, float clutch) {
+ // float                              // float
+    double clutching(SensorModel sensors, double clutch) {
 
         float maxClutch = clutchMax;
 

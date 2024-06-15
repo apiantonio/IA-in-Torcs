@@ -14,6 +14,7 @@ CLASSE ADATTATA ALLA NOSTRA IMPLEMENTAZIONE DI SAMPLE e dunque alle nostre featu
 class KDTree {
 
     private final KDNode root;
+    private final int DIMENSIONS = Sample.N_FEATURES; // le dimensioni sono pari al numero di features;
 
     public KDTree(List<Sample> points) {
         root = buildTree(points, 0);
@@ -33,8 +34,8 @@ class KDTree {
             return null;
         }
 
-        int axis = depth % 12; // 12 features in un Sample
-        points.sort(Comparator.comparingDouble(p -> getCoordinate(p, axis)));
+        int axis = depth % DIMENSIONS;
+        points.sort(Comparator.comparingDouble(p -> p.getFeatures()[axis]));
         int medianIndex = points.size() / 2;
         KDNode node = new KDNode(points.get(medianIndex));
 
@@ -42,23 +43,6 @@ class KDTree {
         node.right = buildTree(points.subList(medianIndex + 1, points.size()), depth + 1);
 
         return node;
-    }
-
-    private double getCoordinate(Sample sample, int axis) {
-        switch (axis) {
-            case 0: return sample.getAngleToTrackAxis();
-            case 1: return sample.getTrackPosition();
-            case 2: return sample.getTrackEdgeSensor10();
-            case 3: return sample.getTrackEdgeSensors9();
-            case 4: return sample.getTrackEdgeSensors8();
-            case 5: return sample.getRpm();
-            case 6: return sample.getGear();
-            case 7: return sample.getSteering();
-            case 8: return sample.getAccelerate();
-            case 9: return sample.getBrake();
-            case 10: return sample.getClutch();
-            default: return sample.getCls();
-        }
     }
 
     public List<Sample> kNearestNeighbors(Sample target, int k) {
@@ -80,13 +64,13 @@ class KDTree {
             pq.offer(node.point);
         }
 
-        int axis = depth % 12;
-        KDNode nearNode = (getCoordinate(target, axis) < getCoordinate(node.point, axis)) ? node.left : node.right;
+        int axis = depth % DIMENSIONS;
+        KDNode nearNode = (target.getFeatures()[axis] < node.point.getFeatures()[axis]) ? node.left : node.right;
         KDNode farNode = (nearNode == node.left) ? node.right : node.left;
 
         kNearestNeighbors(nearNode, target, k, depth + 1, pq);
 
-        if (pq.size() < k || Math.abs(getCoordinate(target, axis) - getCoordinate(node.point, axis)) < target.distance(pq.peek())) {
+        if (pq.size() < k || Math.abs(target.getFeatures()[axis] - node.point.getFeatures()[axis]) < target.distance(pq.peek())) {
             kNearestNeighbors(farNode, target, k, depth + 1, pq);
         }
     }

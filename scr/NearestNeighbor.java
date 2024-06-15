@@ -14,11 +14,13 @@ public class NearestNeighbor {
     private final int[] classCounts; // VERIFICA NEI COSTRUTTORI CHE QUESTO SIA CONFORME CON QUELLO CHE STAI IPOTIZZANDO!
     private final String firstLineOfTheFile; // VERIFICA NEI COSTRUTTORI CHE QUESTO SIA CONFORME CON QUELLO CHE STAI IPOTIZZANDO!
     
+    public static final int NUM_CLASS = 9; // Le classi PER ORA vanno da 0 a 8
+
     public NearestNeighbor(String filename) {
         this.trainingData = new ArrayList<>();
         this.kdtree = null;
-        this.classCounts = new int[9]; // Le classi PER ORA vanno da 0 a 8
-        this.firstLineOfTheFile = "angleToTrackAxis,trackPosition,rxSensor,ctrSensor,sxSensor,rpm,gear,steering,accelerate,brake,clutch,class";
+        this.classCounts = new int[NUM_CLASS];
+        this.firstLineOfTheFile = "angleToTrackAxis,trackPosition,14Sensor,13Sensor,12Sensor,11Sensor,rxSensor,ctrSensor,sxSensor,7Sensor,6Sensor,5Sensor,4Sensor,rpm,xSpeed,ySpeed,class";
         this.readPointsFromCSV(filename);
     }
     

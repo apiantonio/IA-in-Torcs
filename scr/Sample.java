@@ -1,64 +1,36 @@
 package scr;
 
-/**
- * Questa classe va cambiata sulla base del vostro vettore di feature.
- * Per ora, considero: 
- * un vettore di feature di 3 double (x,y,z) e una classe che è un intero.
- */
-
 public class Sample {
 
-    // features
-    private final double angleToTrackAxis;
-    private final double trackPosition;
-    private final double trackEdgeSensor10; // rxSensor
-    private final double trackEdgeSensors9; // ctr
-    private final double trackEdgeSensors8; // sx
-    private final double rpm;
-    private final double gear;
-    private final double steering;
-    private final double accelerate; 
-    private final double brake;
-    private final double clutch;
-
-    // classe
-    private final int cls; 
+    public static final int N_FEATURES = 16; // numero di features scelte (pari alla dimensione)
+    private final double[] features; // array delle features
+    private final int cls; // classe del sample
 
     /*
     Chiamo questo costruttore quando ho la classe di appartenenza e sto costruendo il dataset. 
     In alternativa, quando voglio classificare un nuovo campione, uso l'altro costruttore.
     */
-    public Sample(double angleToTrackAxis, double trackPosition, double trackEdgeSensor10, double trackEdgeSensors9,
-            double trackEdgeSensors8, double rpm, double gear, double steering, double accelerate, double brake,
-            double clutch, int cls) {
-        this.angleToTrackAxis = angleToTrackAxis;
-        this.trackPosition = trackPosition;
-        this.trackEdgeSensor10 = trackEdgeSensor10;
-        this.trackEdgeSensors9 = trackEdgeSensors9;
-        this.trackEdgeSensors8 = trackEdgeSensors8;
-        this.rpm = rpm;
-        this.gear = gear;
-        this.steering = steering;
-        this.accelerate = accelerate;
-        this.brake = brake;
-        this.clutch = clutch;
+    public Sample(double angleToTrackAxis, double trackPosition, double trackEdgeSensor14, double trackEdgeSensor13,
+                    double trackEdgeSensor12, double trackEdgeSensor11, double trackEdgeSensor10, 
+                    double trackEdgeSensors9, double trackEdgeSensors8,  double trackEdgeSensors7, 
+                    double trackEdgeSensors6,  double trackEdgeSensors5,  double trackEdgeSensors4, double rpm,
+                    double xSpeed, double ySpeed, int cls) {
+
+        this.features = new double[]{angleToTrackAxis, trackPosition, trackEdgeSensor14, trackEdgeSensor13, 
+                    trackEdgeSensor12, trackEdgeSensor11, trackEdgeSensor10, trackEdgeSensors9, trackEdgeSensors8,
+                    trackEdgeSensors7, trackEdgeSensors6, trackEdgeSensors5, trackEdgeSensors4, rpm, xSpeed, ySpeed};
         this.cls = cls;
     }
 
-    public Sample(double angleToTrackAxis, double trackPosition, double trackEdgeSensor10, double trackEdgeSensors9,
-            double trackEdgeSensors8, double rpm, double gear, double steering, double accelerate, double brake,
-            double clutch) {
-        this.angleToTrackAxis = angleToTrackAxis;
-        this.trackPosition = trackPosition;
-        this.trackEdgeSensor10 = trackEdgeSensor10;
-        this.trackEdgeSensors9 = trackEdgeSensors9;
-        this.trackEdgeSensors8 = trackEdgeSensors8;
-        this.rpm = rpm;
-        this.gear = gear;
-        this.steering = steering;
-        this.accelerate = accelerate;
-        this.brake = brake;
-        this.clutch = clutch;
+    public Sample(double angleToTrackAxis, double trackPosition, double trackEdgeSensor14, double trackEdgeSensor13,
+                    double trackEdgeSensor12, double trackEdgeSensor11, double trackEdgeSensor10, 
+                    double trackEdgeSensors9, double trackEdgeSensors8,  double trackEdgeSensors7, 
+                    double trackEdgeSensors6,  double trackEdgeSensors5,  double trackEdgeSensors4, 
+                    double rpm, double xSpeed, double ySpeed) {
+                        
+        this.features = new double[]{angleToTrackAxis, trackPosition, trackEdgeSensor14, trackEdgeSensor13, 
+                    trackEdgeSensor12, trackEdgeSensor11, trackEdgeSensor10, trackEdgeSensors9, trackEdgeSensors8,
+                    trackEdgeSensors7, trackEdgeSensors6, trackEdgeSensors5, trackEdgeSensors4, rpm, xSpeed, ySpeed};
         this.cls = -1;
     }
 
@@ -67,84 +39,93 @@ public class Sample {
     */
     public Sample(String line) {
         String[] parts = line.split(",");
-        this.angleToTrackAxis = Double.parseDouble(parts[0].trim());
-        this.trackPosition = Double.parseDouble(parts[1].trim());
-        this.trackEdgeSensor10 = Double.parseDouble(parts[2].trim());
-        this.trackEdgeSensors9 = Double.parseDouble(parts[3].trim());
-        this.trackEdgeSensors8 = Double.parseDouble(parts[4].trim());
-        this.rpm = Double.parseDouble(parts[5].trim());
-        this.gear = Double.parseDouble(parts[6].trim());
-        this.steering = Double.parseDouble(parts[7].trim());
-        this.accelerate = Double.parseDouble(parts[8].trim());
-        this.brake = Double.parseDouble(parts[9].trim());
-        this.clutch = Double.parseDouble(parts[10].trim());
-        this.cls = Integer.parseInt(parts[11].trim());
+        this.features = new double[N_FEATURES];
+        for (int i = 0; i < N_FEATURES; i++) {
+            this.features[i] = Double.parseDouble(parts[i].trim());
+        }
+        this.cls = Integer.parseInt(parts[N_FEATURES].trim());
     }
-    
+
     // calcola la distanza euclidea tra due samples
     public double distance(Sample other) {
-        return Math.sqrt(
-            Math.pow(this.angleToTrackAxis - other.angleToTrackAxis, 2) +
-            Math.pow(this.trackPosition - other.trackPosition, 2) +
-            Math.pow(this.trackEdgeSensor10 - other.trackEdgeSensor10, 2) +
-            Math.pow(this.trackEdgeSensors9 - other.trackEdgeSensors9, 2) +
-            Math.pow(this.trackEdgeSensors8 - other.trackEdgeSensors8, 2) +
-            Math.pow(this.rpm - other.rpm, 2) +
-            Math.pow(this.gear - other.gear, 2) +
-            Math.pow(this.steering - other.steering, 2) +
-            Math.pow(this.accelerate - other.accelerate, 2) +
-            Math.pow(this.brake - other.brake, 2) +
-            Math.pow(this.clutch - other.clutch, 2)
-        );
+        double sum = 0;
+        for (int i = 0; i < features.length; i++) {
+            sum += Math.pow(this.features[i] - other.features[i], 2);
+        }
+        return Math.sqrt(sum);
     }
 
     // getters
-    public double getAngleToTrackAxis() {
-        return angleToTrackAxis;
-    }
-
-    public double getTrackPosition() {
-        return trackPosition;
-    }
-
-    public double getTrackEdgeSensor10() {
-        return trackEdgeSensor10;
-    }
-
-    public double getTrackEdgeSensors9() {
-        return trackEdgeSensors9;
-    }
-
-    public double getTrackEdgeSensors8() {
-        return trackEdgeSensors8;
-    }
-
-    public double getRpm() {
-        return rpm;
-    }
-
-    public double getGear() {
-        return gear;
-    }
-
-    public double getSteering() {
-        return steering;
-    }
-
-    public double getAccelerate() {
-        return accelerate;
-    }
-
-    public double getBrake() {
-        return brake;
-    }
-
-    public double getClutch() {
-        return clutch;
+    
+    public double[] getFeatures() {
+        return features;
     }
 
     public int getCls() {
         return cls;
     }
+
+    public double getAngleToTrackAxis() {
+        return features[0];
+    }
+
+    public double getTrackPosition() {
+        return features[1];
+    }
+
+    public double getTrackEdgeSensor14() {
+        return features[2];
+    }
+
+    public double getTrackEdgeSensor13() {
+        return features[3];
+    }
+
+    public double getTrackEdgeSensor12() {
+        return features[4];
+    }
+
+    public double getTrackEdgeSensor11() {
+        return features[5];
+    }
+
+    public double getTrackEdgeSensor10() {
+        return features[6];
+    }
+
+    public double getTrackEdgeSensor9() {
+        return features[7];
+    }
+
+    public double getTrackEdgeSensor8() {
+        return features[8];
+    }
+
+    public double getTrackEdgeSensor7() {
+        return features[9];
+    }
+
+    public double getTrackEdgeSensor6() {
+        return features[10];
+    }
+
+    public double getTrackEdgeSensor5() {
+        return features[11];
+    }
+
+    public double getTrackEdgeSensor4() {
+        return features[12];
+    }
+
+    public double getRpm() {
+        return features[13];
+    }
+
+    public double getXSpeed() {
+        return features[14];
+    }
     
+    public double getYSpeed() {
+        return features[15];
+    }
 }
