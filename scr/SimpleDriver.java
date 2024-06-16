@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
+import javax.swing.SwingUtilities;
 
 public class SimpleDriver extends Controller {
   
@@ -72,7 +73,7 @@ public class SimpleDriver extends Controller {
     /* Nel costruttore chiamo il char reader */    
     public SimpleDriver() {
         // Thread esterno che lancia il char reader per l'interazione da tastiera
-    //    SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); }); 
+        SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); }); 
     }
 
     // il metodo viene chiamato quando il client vuole inoltrare una richiesta di riavvio della 
@@ -182,7 +183,7 @@ public class SimpleDriver extends Controller {
     }
 
     // metodo control da usare nella fase operativa
-    @Override
+    /* @Override
     public Action control(SensorModel sensors) {
  
         // prendo i dati dei sensori e li normalizzo per classificarli
@@ -327,12 +328,12 @@ public class SimpleDriver extends Controller {
         actionTodo.gear = gear;
         
         return actionTodo;
-    }
+    } */
  
     // metodo control da usare per creare il dataset
     // sensors rappresenta lo stato attuale del gioco come percepito dal driver; il metodo 
     // restituisce l'azione da intraprendere
-    /* @Override
+    @Override
     public Action control(SensorModel sensors) {
         // azione da intraprendere
         Action action = new Action();
@@ -399,7 +400,7 @@ public class SimpleDriver extends Controller {
         printToCSV(sensors, cls);
 
         return action;
-    } */
+    }
 
     // // Controlla se l'auto è attualmente bloccata
         // /**
