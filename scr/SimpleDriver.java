@@ -64,10 +64,10 @@ public class SimpleDriver extends Controller {
     private double clutch = 0;
 
     private ContinuousCharReaderUI ccr; // char reader automatico da cui leggiamo il tasto premuto 
+    private final int RANGE = 10; // range per effettuare lo scaling dei dati
     private long lastTimeWroteCSV = 0; // variabile per salvare quando è stata scritta l'ultima riga del CSV 
-    // azione da intrapredere a seconda della classe predetta
-    private Action actionTodo = new Action();
-
+    private Action actionTodo = new Action(); // azione da intrapredere a seconda della classe predetta
+    
 
     /* Nel costruttore chiamo il char reader */    
     public SimpleDriver() {
@@ -185,23 +185,23 @@ public class SimpleDriver extends Controller {
     @Override
     public Action control(SensorModel sensors) {
  
-        // prendo i dati dei sensori per classificarli
-        double angleToTrackAxis = sensors.getAngleToTrackAxis();
-        double trackPosition = sensors.getTrackPosition();
-        double trackEdgeSensor14 = sensors.getTrackEdgeSensors()[14];
-        double trackEdgeSensor13 = sensors.getTrackEdgeSensors()[13];
-        double trackEdgeSensor12 = sensors.getTrackEdgeSensors()[12]; 
-        double trackEdgeSensor11 = sensors.getTrackEdgeSensors()[11];
-        double trackEdgeSensor10 = sensors.getTrackEdgeSensors()[10]; // rx
-        double trackEdgeSensor9 = sensors.getTrackEdgeSensors()[9]; // sensore centrale
-        double trackEdgeSensor8 = sensors.getTrackEdgeSensors()[8]; // sx
-        double trackEdgeSensor7 = sensors.getTrackEdgeSensors()[7];
-        double trackEdgeSensor6 = sensors.getTrackEdgeSensors()[6]; 
-        double trackEdgeSensor5 = sensors.getTrackEdgeSensors()[5]; 
-        double trackEdgeSensor4 = sensors.getTrackEdgeSensors()[4];
-        double rpm = sensors.getRPM();
-        double xSpeed = sensors.getSpeed(); // x speed
-        double ySpeed = sensors.getLateralSpeed(); // y speed
+        // prendo i dati dei sensori e li normalizzo per classificarli
+        double angleToTrackAxis = sensors.getAngleToTrackAxis()/Math.PI*RANGE;
+        double trackPosition = sensors.getTrackPosition()*RANGE;
+        double trackEdgeSensor14 = sensors.getTrackEdgeSensors()[14]/200*RANGE;
+        double trackEdgeSensor13 = sensors.getTrackEdgeSensors()[13]/200*RANGE;
+        double trackEdgeSensor12 = sensors.getTrackEdgeSensors()[12]/200*RANGE; 
+        double trackEdgeSensor11 = sensors.getTrackEdgeSensors()[11]/200*RANGE;
+        double trackEdgeSensor10 = sensors.getTrackEdgeSensors()[10]/200*RANGE; // rx
+        double trackEdgeSensor9 = sensors.getTrackEdgeSensors()[9]/200*RANGE; // sensore centrale
+        double trackEdgeSensor8 = sensors.getTrackEdgeSensors()[8]/200*RANGE; // sx
+        double trackEdgeSensor7 = sensors.getTrackEdgeSensors()[7]/200*RANGE;
+        double trackEdgeSensor6 = sensors.getTrackEdgeSensors()[6]/200*RANGE; 
+        double trackEdgeSensor5 = sensors.getTrackEdgeSensors()[5]/200*RANGE; 
+        double trackEdgeSensor4 = sensors.getTrackEdgeSensors()[4]/200*RANGE;
+        double rpm = sensors.getRPM()/7000*RANGE;
+        double xSpeed = sensors.getSpeed()/maxSpeed*RANGE; // x speed
+        double ySpeed = sensors.getLateralSpeed()/maxSpeed*RANGE; // y speed
 
         int predictedClass;
         
@@ -240,7 +240,7 @@ public class SimpleDriver extends Controller {
         switch (predictedClass) {
             // nessun tasto premuto
             case 0 -> {
-                return actionTodo; // azione nulla
+                return new Action(); // azione nulla
             }
             // premuto w
             case 1 -> {
@@ -262,6 +262,8 @@ public class SimpleDriver extends Controller {
                 steer = 0.0;
                 brake += ContinuousCharReaderUI.DELTA_BRAKE;
                 brake = brake > 1.0 ? 1.0 : brake;
+                // se si vuole frenare allora applico l'ABS al freno
+                brake = filterABS(sensors, brake);
             }
             // premo d
             case 4 -> {
@@ -286,45 +288,38 @@ public class SimpleDriver extends Controller {
                 steer = steer < -1.0 ? -1.0 : steer;
                 brake = 0.0;
             }
-            // premo s e a
+            // premo e e a
             case 7 -> {
-                accel = 0.0; 
+                gear = -1;
+                accel = 1.0; 
                 steer += ContinuousCharReaderUI.DELTA_STEER;
                 steer = steer > 1.0 ? 1.0 : steer;
-                brake += ContinuousCharReaderUI.DELTA_BRAKE;
-                brake = brake > 1.0 ? 1.0 : brake;
+                brake = 0.0;
             }
-            // premo s e d
+            // premo e e d
             case 8 -> {
-                accel = 0.0; 
+                gear = -1;
+                accel = 1.0; 
                 steer -= ContinuousCharReaderUI.DELTA_STEER;
                 steer = steer < -1.0 ? -1.0 : steer;
-                brake += ContinuousCharReaderUI.DELTA_BRAKE;
-                brake = brake > 1.0 ? 1.0 : brake;
+                brake = 0.0;
+            }
+            // premo e
+            case 9 -> {
+                gear = -1; 
+                accel = 1.0;
+                steer = 0.0;
+                brake = 0.0;
             }
             default -> throw new AssertionError();
         }
-        
-       
-        // se brake != 0 allora si sta premendo 's' per frenare o andare in retromarcia
-        if (brake != 0) {
-            // se si è prossimi a fermarsi allora mette la retromarcia
-            if (sensors.getSpeed() <= 5) { 
-                gear = -1;
-                brake = 0.0;
-                accel = 1.0;
-            } else { // si vuole frenare
-                // se si vuole frenare allora applico l'ABS
-                accel = 0;
-                // Applicare l'ABS al freno
-                brake = filterABS(sensors, brake);
-            }
-        } else if (sensors.getSpeed() < 0) {
-            // se brake == 0.0 allora vogliamo andare avanti ma 
-            // stavamo andando in retromarcia (speed < 0) allora prima freno e poi andarà in avanti 
+
+        // se non si sta andando in retromarcia ma la velocità è negativa allora si vuole smettere 
+        // di andare in retro dunque prima freno
+        if(predictedClass != 7 && predictedClass != 8 && predictedClass != 9 && sensors.getSpeed() < 0) {
             brake = 1.0;
         }
-
+             
         actionTodo.accelerate = accel;
         actionTodo.steering = steer;
         actionTodo.brake = brake;
@@ -333,11 +328,11 @@ public class SimpleDriver extends Controller {
         
         return actionTodo;
     }
-
+ 
     // metodo control da usare per creare il dataset
     // sensors rappresenta lo stato attuale del gioco come percepito dal driver; il metodo 
     // restituisce l'azione da intraprendere
-   /*  @Override
+    /* @Override
     public Action control(SensorModel sensors) {
         // azione da intraprendere
         Action action = new Action();
@@ -346,8 +341,10 @@ public class SimpleDriver extends Controller {
         boolean aPressed = ccr.aPressed();
         boolean sPressed = ccr.sPressed();
         boolean dPressed = ccr.dPressed();
+        boolean ePressed = ccr.ePressed();
 
-        int cls = 0; // non sta premendo nulla
+        // determino la ground truth
+        int cls; 
         if (wPressed) {
             if (aPressed) {
                 cls = 5; // wa
@@ -357,43 +354,42 @@ public class SimpleDriver extends Controller {
                 cls = 1; // w
             }
         } else if (sPressed) {
-            if (aPressed) {
-                cls = 7; // sa
-            } else if (dPressed) {
-                cls = 8; // sd
-            } else {
-                cls = 3; // s
-            }
+            cls = 3; // s
         } else if (aPressed) {
             cls = 2; // a
         } else if (dPressed) {
             cls = 4; // d
+        } else if (ePressed) {
+            if(aPressed){
+                cls = 7; // ea
+            } else if(dPressed) {
+                cls = 8; // ed
+            } else {
+                cls = 9; // e
+            }
+        } else {
+            cls = 0; // non sta premendo nulla
         }
-    
+
         double accel = ccr.getAccel(); // accelerazione calcolata in base al tasto premuto
         double brake = ccr.getBrake(); // valore del freno
         int gear = getGear(sensors); // calcola la marcia
-        //float accel_and_brake = getAccel(sensors); // accelerazione/frenata
-       
-        // se brake != 0 allora si sta premendo 's' per frenare o andare in retromarcia
-        if (brake != 0) {
-            // se si è prossimi a fermarsi allora mette la retromarcia
-            if (sensors.getSpeed() <= 5) { 
-                gear = -1;
-                brake = 0.0;
-                accel = 1.0;
-            } else { // si vuole frenare
-                // se si vuole frenare allora applico l'ABS
-                accel = 0;
-                // Applicare l'ABS al freno
-                brake = filterABS(sensors, brake);
-            }
+   
+        // voglio andare in retro con il tasto apposito
+        if(ePressed) {
+            gear = -1;
+            brake = 0.0;
         } else if (sensors.getSpeed() < 0) {
-            // se brake == 0.0 allora vogliamo andare avanti ma 
-            // stavamo andando in retromarcia (speed < 0) allora prima freno e poi andarà in avanti 
+            // se non si sta andando in retromarcia ma la velocità è negativa allora si vuole smettere 
+            // di andare in retro dunque prima freno
             brake = 1.0;
+        } else if (brake != 0) { // se brake != 0 allora si sta premendo 's' per frenare
+            // se si vuole frenare allora applico l'ABS
+            accel = 0;
+            // Applicare l'ABS al freno
+            brake = filterABS(sensors, brake);
         }
-
+        
         action.accelerate = accel;
         action.brake = brake;
         action.steering = ccr.getSteer(); // sterzata calcolata in base al tasto premuto
@@ -520,24 +516,24 @@ public class SimpleDriver extends Controller {
                     csvWriter.println("angleToTrackAxis,trackPosition,14Sensor,13Sensor,12Sensor,11Sensor,rxSensor,ctrSensor,sxSensor,7Sensor,6Sensor,5Sensor,4Sensor,rpm,xSpeed,ySpeed,class");
                 }
     
-                // Scrivi l'azione nel file CSV
+                // Scrivi i valori normalizzati dei sensori nel file CSV
                 csvWriter.printf(Locale.US,"%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n",
-                    sensors.getAngleToTrackAxis(),
-                    sensors.getTrackPosition(),
-                    sensors.getTrackEdgeSensors()[14], // -30
-                    sensors.getTrackEdgeSensors()[13], // -20
-                    sensors.getTrackEdgeSensors()[12], // -15
-                    sensors.getTrackEdgeSensors()[11], // -10
-                    sensors.getTrackEdgeSensors()[10], // rx -5
-                    sensors.getTrackEdgeSensors()[9], // ctr 0
-                    sensors.getTrackEdgeSensors()[8], // sx +5
-                    sensors.getTrackEdgeSensors()[7], // 10
-                    sensors.getTrackEdgeSensors()[6], // 15
-                    sensors.getTrackEdgeSensors()[5], // 20
-                    sensors.getTrackEdgeSensors()[4], // 30
-                    sensors.getRPM(),
-                    sensors.getSpeed(), // velocità lungo l'asse x
-                    sensors.getLateralSpeed(), // veloxità lungo l'asse y
+                    sensors.getAngleToTrackAxis()/Math.PI*RANGE,
+                    sensors.getTrackPosition()*RANGE,
+                    sensors.getTrackEdgeSensors()[14]/200*RANGE, // -30
+                    sensors.getTrackEdgeSensors()[13]/200*RANGE, // -20
+                    sensors.getTrackEdgeSensors()[12]/200*RANGE, // -15
+                    sensors.getTrackEdgeSensors()[11]/200*RANGE, // -10
+                    sensors.getTrackEdgeSensors()[10]/200*RANGE, // rx -5
+                    sensors.getTrackEdgeSensors()[9]/200*RANGE, // ctr 0
+                    sensors.getTrackEdgeSensors()[8]/200*RANGE, // sx +5
+                    sensors.getTrackEdgeSensors()[7]/200*RANGE, // 10
+                    sensors.getTrackEdgeSensors()[6]/200*RANGE, // 15
+                    sensors.getTrackEdgeSensors()[5]/200*RANGE, // 20
+                    sensors.getTrackEdgeSensors()[4]/200*RANGE, // 30
+                    sensors.getRPM()/7000*RANGE,
+                    sensors.getSpeed()/maxSpeed*RANGE, // velocità lungo l'asse x
+                    sensors.getLateralSpeed()/maxSpeed*RANGE, // veloxità lungo l'asse y
                     cls // classe
                 );
     

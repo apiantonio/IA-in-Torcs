@@ -156,7 +156,7 @@ public class Client {
             if (entity.equals("verbose")) {
                 if (value.equals("on")) {
                     verbose = true;
-                } else if (value.equals(false)) {
+                } else if (value.equals("off")) { // qui prima era false
                     verbose = false;
                 } else {
                     System.out.println(entity + ":" + value + " is not a valid option");

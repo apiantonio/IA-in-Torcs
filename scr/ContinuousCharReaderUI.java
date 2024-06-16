@@ -13,6 +13,7 @@ public class ContinuousCharReaderUI extends JFrame {
     private boolean aPressed = false;
     private boolean sPressed = false;
     private boolean dPressed = false;
+    private boolean ePressed = false; // per la retromarcia
 
     // costanti di utilità
     public static final double DELTA_ACCEL = 0.3;
@@ -52,12 +53,14 @@ public class ContinuousCharReaderUI extends JFrame {
                     case 's', 'S' -> sPressed = true;
                     case 'a', 'A' -> aPressed = true;
                     case 'd', 'D' -> dPressed = true;
+                    case 'e', 'E' -> ePressed = true;
                     case 'q', 'Q' -> System.exit(0);
                     default -> {
                         wPressed = false;
                         aPressed = false;
                         sPressed = false;
                         dPressed = false;
+                        ePressed = false;
                     }
                 }
 
@@ -78,11 +81,13 @@ public class ContinuousCharReaderUI extends JFrame {
                     case 's', 'S' -> sPressed = false;
                     case 'a', 'A' -> aPressed = false;
                     case 'd', 'D' -> dPressed = false;
+                    case 'e', 'E' -> ePressed = false;
                     default -> {
                         wPressed = false;
                         aPressed = false;
                         sPressed = false;
                         dPressed = false;
+                        ePressed = false;
                     }
                 }
                 
@@ -96,7 +101,7 @@ public class ContinuousCharReaderUI extends JFrame {
 
     // calcola il comportamento da seguire quando viene premuto/rilasciato un tasto della tastiera
     private void changeAction() {
-            // in simpledriver dovrà calcolare brake
+        // in simpledriver dovrà calcolare brake
         if (wPressed) {
             // se premo w allora accelera gradualmente, tetto massimo 1.0 
             accel += DELTA_ACCEL;
@@ -124,6 +129,12 @@ public class ContinuousCharReaderUI extends JFrame {
             // se non sto sterzando allora porta la sterzata a 0
             steer = 0.0;
         }
+
+        // per la retromarcia
+        if (ePressed) {
+            accel = 1.0;
+            brake = 0.0;
+        }
     }
 
     public double getAccel() {
@@ -137,7 +148,6 @@ public class ContinuousCharReaderUI extends JFrame {
     public double getBrake() {
         return brake;
     }
-
 
     public boolean wPressed() {
         return wPressed;
@@ -153,6 +163,10 @@ public class ContinuousCharReaderUI extends JFrame {
 
     public boolean dPressed() {
         return dPressed;
+    }
+
+    public boolean ePressed() {
+        return ePressed;
     }
 
 }
