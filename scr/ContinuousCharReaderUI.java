@@ -16,7 +16,7 @@ public class ContinuousCharReaderUI extends JFrame {
     private boolean ePressed = false; // per la retromarcia
 
     // costanti di utilità
-    public static final double DELTA_ACCEL = 0.3;
+    public static final double DELTA_ACCEL = 0.8;
     public static final double DELTA_STEER = 0.1;
     public static final double DELTA_BRAKE = 0.3;
 
@@ -101,38 +101,53 @@ public class ContinuousCharReaderUI extends JFrame {
 
     // calcola il comportamento da seguire quando viene premuto/rilasciato un tasto della tastiera
     private void changeAction() {
-        // in simpledriver dovrà calcolare brake
-        if (wPressed) {
-            // se premo w allora accelera gradualmente, tetto massimo 1.0 
-            accel += DELTA_ACCEL;
-            accel = accel > 1.0 ? 1.0 : accel;
+        
+        if (wPressed || ePressed) {
+            // se viene premuto w o e (retromarcia) imposto il freno a 0 e considero i casi in cui siano 
+            // premuti anche i tasi per sterzare (a, d)
+            brake = 0.0;
+            if (aPressed) { // wa
+                // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
+                steer += Math.min(Math.abs(DELTA_STEER - accel), DELTA_STEER);
+                steer = steer > 1.0 ? 1.0 : steer;
+                //deve anche diminuire l'accelerazione
+                accel -= Math.abs(steer);
+                accel = accel < 0.37 ? 0.37 : accel;
+            } else if (dPressed) { // wd
+                // se premo d allora sterza verso destra gradualmente, massimo -1.0
+                steer -= Math.min(Math.abs(DELTA_STEER - accel), DELTA_STEER);
+                steer = steer < -1.0 ? -1.0 : steer;
+                //deve anche diminuire l'accelerazione
+                accel -= Math.abs(steer);
+                accel = accel < 0.37 ? 0.37 : accel;
+            } else { // solo w oppure e
+                // se premo w allora accelera gradualmente, tetto massimo 1.0 
+                accel += DELTA_ACCEL;
+                accel = accel > 1.0 ? 1.0 : accel;
+                steer = 0.0;
+            }
         } else if (sPressed) {
             // se premo s frena, massimo 1.0
             brake += DELTA_BRAKE;
             brake = brake > 1.0 ? 1.0 : brake;
-        } else { 
-            // se non sto premendo né w né s decelera e resetta il freno
-            accel = 0.0; 
-            brake = 0.0;
-        } 
-        
-        // la sterzata va da -1.0 (tutto a dx) a +1.0 (tutto a sx)
-        if (aPressed) {
-            // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
-            steer += DELTA_STEER;
-            steer = steer > 1.0 ? 1.0 : steer;
-        } else if (dPressed) {
-            // se premo d allora sterza verso destra gradualemnte, massimo -1.0
-            steer -= DELTA_STEER;
-            steer = steer < -1.0 ? -1.0 : steer;
-        } else {
-            // se non sto sterzando allora porta la sterzata a 0
+            accel = 0.0;
             steer = 0.0;
-        }
-
-        // per la retromarcia
-        if (ePressed) {
-            accel = 1.0;
+        } else if (aPressed) { 
+            // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
+            steer += Math.min(Math.abs(DELTA_STEER - accel), DELTA_STEER);
+            steer = steer > 1.0 ? 1.0 : steer;
+            accel = 0.0;
+            brake = 0.0;
+        } else if (dPressed) {
+            // se premo d allora sterza verso destra gradualmente, massimo -1.0
+            steer -= Math.min(Math.abs(DELTA_STEER - accel), DELTA_STEER);
+            steer = steer < -1.0 ? -1.0 : steer;
+            accel = 0.0;
+            brake = 0.0;
+        } else { 
+            // non viene premuto nulla
+            accel = 0.0;
+            steer = 0.0;
             brake = 0.0;
         }
     }
