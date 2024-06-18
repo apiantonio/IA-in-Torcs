@@ -20,7 +20,7 @@ public class NearestNeighbor {
         this.trainingData = new ArrayList<>();
         this.kdtree = null;
         this.classCounts = new int[NUM_CLASS];
-        this.firstLineOfTheFile = "angleToTrackAxis,trackPosition,14Sensor,13Sensor,12Sensor,11Sensor,rxSensor,ctrSensor,sxSensor,7Sensor,6Sensor,5Sensor,4Sensor,rpm,xSpeed,ySpeed,class";
+        this.firstLineOfTheFile = "angleToTrackAxis,trackPosition,11Sensor,rxSensor,ctrSensor,sxSensor,7Sensor,xSpeed,ySpeed,class";
         this.readPointsFromCSV(filename);
     }
     

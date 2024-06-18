@@ -16,8 +16,8 @@ public class ContinuousCharReaderUI extends JFrame {
     private boolean ePressed = false; // per la retromarcia
 
     // costanti di utilità
-    public static final double DELTA_ACCEL = 0.8;
-    public static final double DELTA_STEER = 0.1;
+    public static final double DELTA_ACCEL = 0.5;
+    public static final double DELTA_STEER = 0.05;
     public static final double DELTA_BRAKE = 0.3;
 
     // Valori di accelerazione, sterzata e freno da passare al driver
@@ -109,14 +109,14 @@ public class ContinuousCharReaderUI extends JFrame {
             if (aPressed) { // wa
                 // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
                 steer += DELTA_STEER;
-                steer = steer > 1.0 ? 1.0 : steer < DELTA_STEER ? DELTA_STEER : steer;
+                steer = steer > 1.0 ? 1.0 : steer;
                 //deve anche diminuire l'accelerazione
                 accel -= Math.abs(steer);
                 accel = accel < 0.37 ? 0.37 : accel;
             } else if (dPressed) { // wd
                 // se premo d allora sterza verso destra gradualmente, massimo -1.0
                 steer -= DELTA_STEER;
-                steer = steer < -1.0 ? -1.0 : steer < -DELTA_STEER ? -DELTA_STEER : steer;
+                steer = steer < -1.0 ? -1.0 : steer;
                 //deve anche diminuire l'accelerazione
                 accel -= Math.abs(steer);
                 accel = accel < 0.37 ? 0.37 : accel;
@@ -135,13 +135,13 @@ public class ContinuousCharReaderUI extends JFrame {
         } else if (aPressed) { 
             // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
             steer += DELTA_STEER;
-            steer = steer > 1.0 ? 1.0 : steer < DELTA_STEER ? DELTA_STEER : steer;
+            steer = steer > 1.0 ? 1.0 : steer;
             accel = 0.0;
             brake = 0.0;
         } else if (dPressed) {
             // se premo d allora sterza verso destra gradualmente, massimo -1.0
             steer -= DELTA_STEER;
-            steer = steer < -1.0 ? -1.0 : steer < -DELTA_STEER ? -DELTA_STEER : steer;
+            steer = steer < -1.0 ? -1.0 : steer;
             accel = 0.0;
             brake = 0.0;
         } else { 

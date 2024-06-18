@@ -7,7 +7,7 @@ package scr;
 public class Classificatore {
 
     //valore di k per il K-NN. Se voglio usare NN, allora k=1 altrimenti k= (es) 5
-    public static final int K = 7;
+    public static final int K = 5;
 
     public Classificatore() {}
     
@@ -24,18 +24,11 @@ public class Classificatore {
         System.out.println("Predicted class for point (" + 
                 testSample.getAngleToTrackAxis() + ", " + 
                 testSample.getTrackPosition() + ", " + 
-                testSample.getTrackEdgeSensor14() + ", " + 
-                testSample.getTrackEdgeSensor13() + ", " + 
-                testSample.getTrackEdgeSensor12() + ", " + 
                 testSample.getTrackEdgeSensor11() + ", " + 
                 testSample.getTrackEdgeSensor10() + ", " + 
                 testSample.getTrackEdgeSensor9() + ", " + 
                 testSample.getTrackEdgeSensor8() + ", " + 
                 testSample.getTrackEdgeSensor7() + ", " + 
-                testSample.getTrackEdgeSensor6() + ", " + 
-                testSample.getTrackEdgeSensor5() + ", " + 
-                testSample.getTrackEdgeSensor4() + ", " + 
-                testSample.getRpm() + ", " + 
                 testSample.getXSpeed() + ", " +
                 testSample.getYSpeed() + ") is " +
                 predictedClass
