@@ -33,7 +33,7 @@ public class SimpleDriver extends Controller {
 
     /* Costanti di accelerazione e di frenata */
     final float maxSpeedDist = 70;
-    final float maxSpeed = 360; // originale 150
+    final float maxSpeed = 210; // originale 150
     final float sin5 = (float) 0.08716;
     final float cos5 = (float) 0.99619;
 
@@ -75,7 +75,7 @@ public class SimpleDriver extends Controller {
     // Nel costruttore chiamo il char reader con un thread apposito
     public SimpleDriver() {
         // Thread esterno che lancia il char reader per l'interazione da tastiera
-    //    SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); });
+    //    SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); }); // commentare questa riga durante fase operativa
     }
 
     // il metodo viene chiamato quando il client vuole inoltrare una richiesta di riavvio della
@@ -193,12 +193,64 @@ public class SimpleDriver extends Controller {
         long currentTime = System.currentTimeMillis();
         // esegue una nuova azione ogni DELTA_MILLIS
         if (currentTime - lastTimeDidAction < DELTA_MILLIS) {
-            return actionTodo; // TODO provare con new Action()
+            return actionTodo; 
         } else {
+            
+            double angleToTrackAxis = sensors.getAngleToTrackAxis();
+            /*Controlla se l'auto è attualmente bloccata*/
+            
+            /**
+             * Se l'auto ha un angolo, rispetto alla traccia, superiore a 30° incrementa "stuck" che è una variabile che indica per
+             * quanti cicli l'auto è in condizione di difficoltà. Quando l'angolo si riduce, "stuck" viene riportata a 0 per indicare
+             * che l'auto è uscita dalla situaizone di difficoltà
+             **/
+            if (Math.abs(angleToTrackAxis) > stuckAngle) {
+                // update stuck counter
+                stuck++;
+            }
+
+            // Applicare la polizza di recupero o meno in base al tempo trascorso
+            /**
+             * questa codice per "sbloccare" l'auto è applicato solo nel caso in cui stuck > 25
+             * in altre situazioni anche se l'auto è bloccata viene applicato un comportamento coerente col dataset
+             * Se "stuck" è superiore a 25 (stuckTime) allora procedi a entrare in situazione di RECOVERY per far fronte alla
+             * situazione di difficoltà
+            **/
+            if (stuck > stuckTime) { //Auto Bloccata
+                /**
+                 * Impostare la marcia e il comando di sterzata supponendo che l'auto stia puntando in una direzione al di fuori di
+                * pista
+                **/
+
+                // Per portare la macchina parallela all'asse TrackPos
+                float steer = (float) (-sensors.getAngleToTrackAxis() / steerLock);
+                int gear = -1; // Retromarcia
+
+                // Se l'auto è orientata nella direzione corretta invertire la marcia e sterzare
+                if (sensors.getAngleToTrackAxis() * sensors.getTrackPosition() > 0) {
+                    gear = 1;
+                    steer = -steer;
+                    // if not stuck reset stuck counter
+                    stuck = 0;
+                }
+                clutch = clutching(sensors, clutch);
+                // Costruire una variabile CarControl e restituirla
+                Action action = new Action();
+                action.gear = gear;
+                action.steering = steer;
+                action.accelerate = 1.0;
+                action.brake = 0;
+                action.clutch = clutch;
+
+                return action;
+            }
+
+            /*Auto non Bloccata*/
+            
             // prendo i dati dei sensori e li normalizzo per classificarli
             double[] trackEdgeSensors = sensors.getTrackEdgeSensors(); // array dei sensori
-
-            double angleToTrackAxis = normalize(sensors.getAngleToTrackAxis(), -Math.PI, Math.PI);
+            // features 
+            angleToTrackAxis = normalize(angleToTrackAxis, -Math.PI, Math.PI);
             double trackPosition = normalize(sensors.getTrackPosition(), -100, 100);
             double trackEdgeSensor11 = normalize(trackEdgeSensors[11], -200, 200);
             double trackEdgeSensor10 = normalize(trackEdgeSensors[10], -200, 200); // rx -5
@@ -207,7 +259,7 @@ public class SimpleDriver extends Controller {
             double trackEdgeSensor7 = normalize(trackEdgeSensors[7], -200, 200);
             double xSpeed = normalize(sensors.getSpeed(), -maxSpeed, maxSpeed);
             double ySpeed = normalize(sensors.getLateralSpeed(), -maxSpeed, maxSpeed);
-
+            // classe
             int predictedClass;
 
             // creo sample coi dati, lo classifico e a seconda della classe predetta eseguo l'azione corrispondente
@@ -238,7 +290,7 @@ public class SimpleDriver extends Controller {
             switch (predictedClass) {
                 // nessun tasto premuto
                 case 0 -> {
-                    return new Action(); // azione nulla
+                    return actionTodo; // azione nulla
                 }
                 // premuto w
                 case 1 -> {
@@ -407,8 +459,8 @@ public class SimpleDriver extends Controller {
         printToCSV(sensors, cls);
 
         return action;
-    }
- */
+    } */
+
     // // Controlla se l'auto è attualmente bloccata
         // /**
         //  * Se l'auto ha un angolo, rispetto alla traccia, superiore a 30° incrementa "stuck" che è una variabile che indica per

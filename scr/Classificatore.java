@@ -21,7 +21,7 @@ public class Classificatore {
         // Per classificare il campione testSample, richiama la classe Classify
         int predictedClass = knn.classify(testSample, K);
 
-        System.out.println("Predicted class for point (" + 
+        /* System.out.println("Predicted class for point (" + 
                 testSample.getAngleToTrackAxis() + ", " + 
                 testSample.getTrackPosition() + ", " + 
                 testSample.getTrackEdgeSensor11() + ", " + 
@@ -32,7 +32,9 @@ public class Classificatore {
                 testSample.getXSpeed() + ", " +
                 testSample.getYSpeed() + ") is " +
                 predictedClass
-        );
+        ); */
+
+        System.out.println("Predicted class is " + predictedClass);
 
         return predictedClass;
     }
