@@ -63,21 +63,23 @@ public class SimpleDriver extends Controller {
     // current clutch
     private double clutch = 0;
 
-    private ContinuousCharReaderUI ccr; // char reader automatico da cui leggiamo il tasto premuto
+    // utilità
+    private static final int DELTA_MILLIS = 300; // tempo tra una lettura (o scrittura) e l'altra dal CSV
     private long lastTimeWroteCSV = 0; // variabile per salvare quando è stata scritta l'ultima riga del CSV
     private long lastTimeDidAction = 0; // per l'ultima azione predetta da compiere
-    private int deltaMillis = 300;
     private Action actionTodo = new Action(); // azione da intrapredere a seconda della classe predetta
-
-    /* Nel costruttore chiamo il char reader */
+    
+    // char reader automatico da cui leggiamo il tasto premuto
+    private ContinuousCharReaderUI ccr; 
+    
+    // Nel costruttore chiamo il char reader con un thread apposito
     public SimpleDriver() {
         // Thread esterno che lancia il char reader per l'interazione da tastiera
-    //   SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); });
+    //    SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); });
     }
 
     // il metodo viene chiamato quando il client vuole inoltrare una richiesta di riavvio della
-    // gara. Questa funzione potrebbe essere usata per chiudere i file aperti, salvare su disco,
-    // salvare eventualmente lo stato della corsa ecc., laddove necessario.
+    // gara.
     @Override
     public void reset() {
         System.out.println("Restarting the race!");
@@ -181,14 +183,17 @@ public class SimpleDriver extends Controller {
         }
     }
 
-    // metodo control da usare nella fase operativa
+    /**
+     * metodo control da usare nella fase operativa
+     * ogni delta millisecodi classifica i valori dei sensori ed esegue un'azione di conseguenza
+     */
     @Override
     public Action control(SensorModel sensors) {
         
         long currentTime = System.currentTimeMillis();
-        // esegue una nuova azione ogni deltaMillis
-        if (currentTime - lastTimeDidAction < deltaMillis) {
-            return actionTodo;
+        // esegue una nuova azione ogni DELTA_MILLIS
+        if (currentTime - lastTimeDidAction < DELTA_MILLIS) {
+            return actionTodo; // TODO provare con new Action()
         } else {
             // prendo i dati dei sensori e li normalizzo per classificarli
             double[] trackEdgeSensors = sensors.getTrackEdgeSensors(); // array dei sensori
@@ -329,9 +334,11 @@ public class SimpleDriver extends Controller {
         }
     }
 
-    // metodo control da usare per creare il dataset
-    // sensors rappresenta lo stato attuale del gioco come percepito dal driver; il metodo
-    // restituisce l'azione da intraprendere
+    /**
+     * metodo control da usare per creare il dataset
+     * sensors rappresenta lo stato attuale del gioco come percepito dal driver,
+     * il metodo restituisce l'azione da intraprendere a secnoda del tasto premuto sulla tastiera
+     */
     /* @Override
     public Action control(SensorModel sensors) {
         // azione da intraprendere
@@ -396,11 +403,12 @@ public class SimpleDriver extends Controller {
         action.gear = gear;
         action.clutch = clutching(sensors, clutch); // calcola la frizione
 
+        // stampo nel dataset
         printToCSV(sensors, cls);
 
         return action;
-    } */
-
+    }
+ */
     // // Controlla se l'auto è attualmente bloccata
         // /**
         //  * Se l'auto ha un angolo, rispetto alla traccia, superiore a 30° incrementa "stuck" che è una variabile che indica per
@@ -495,14 +503,18 @@ public class SimpleDriver extends Controller {
         // }
     // }
 
-    // stampa una nuova riga nel dataset
+    /**
+     * stampa una nuova riga nel dataset ogni delta millisecondi
+     * @param sensors sono i sensori da cui prendere le features da scrivere
+     * @param cls è la classe ground truth 
+     */
     private void printToCSV(SensorModel sensors, int cls) {
         // Ottieni il tempo corrente
         long currentTime = System.currentTimeMillis();
         String datasetPath = "../src/dataset.csv"; // path del file CSV in cui salviamo i dati
 
         // Scrivo una riga sul file CSV delta millisecondi
-        if (currentTime - lastTimeWroteCSV >= deltaMillis) {
+        if (currentTime - lastTimeWroteCSV >= DELTA_MILLIS) {
 
             // Try-with-resources per la gestione del file
             try (PrintWriter csvWriter = new PrintWriter(new FileWriter(datasetPath, true))) {
@@ -538,12 +550,17 @@ public class SimpleDriver extends Controller {
         }
     }
 
-    // esegue una normalizzazione di un valore x ad un range compreso tra -1 e 1,
-    // è necessario passare i parametri max che rappresenta il valore massimo che può assumere x
-    // e min che rappresenta il valore minimo che può assumere x
+    /**
+     * esegue una normalizzazione di un valore x ad un range compreso tra -1 e 1
+     * @param x è il valore da normalizare
+     * @param min rappresenta il valore minimo che può assumere x
+     * @param max rappresenta il valore massimo che può assumere x
+     * @return il valore normalizzato nell'intervallo [-1, 1]
+     */
     private double normalize(double x,  double min, double max) {
         return 2 * ((x - min) / (max - min)) - 1;
     }
+
 
           //float                               //float
     private double filterABS(SensorModel sensors, double brake) {

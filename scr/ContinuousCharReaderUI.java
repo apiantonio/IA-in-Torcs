@@ -38,23 +38,22 @@ public class ContinuousCharReaderUI extends JFrame {
 
         // Add key listener to the text field
         inputField.addKeyListener(new KeyAdapter() {
-
+            
             @Override
-            public void keyTyped(KeyEvent e) {
-                char ch = e.getKeyChar();
-                System.out.println("You pressed: " + ch);
+            public void keyPressed(KeyEvent e) {
+                System.out.println("You pressed: " + e.getKeyChar());
 
-                // Clear the text field
-                inputField.setText("");
+                /* // Clear the text field
+                inputField.setText(""); */
 
                 // Gestiscto le keys premute
-                switch (ch) {
-                    case 'w', 'W' -> wPressed = true;
-                    case 's', 'S' -> sPressed = true;
-                    case 'a', 'A' -> aPressed = true;
-                    case 'd', 'D' -> dPressed = true;
-                    case 'e', 'E' -> ePressed = true;
-                    case 'q', 'Q' -> System.exit(0);
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_W, KeyEvent.VK_UP -> wPressed = true;
+                    case KeyEvent.VK_A, KeyEvent.VK_LEFT -> aPressed = true;
+                    case KeyEvent.VK_S, KeyEvent.VK_DOWN -> sPressed = true;
+                    case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> dPressed = true;
+                    case KeyEvent.VK_E -> ePressed = true;
+                    case KeyEvent.VK_Q -> System.exit(0);
                     default -> {
                         wPressed = false;
                         aPressed = false;
@@ -69,19 +68,18 @@ public class ContinuousCharReaderUI extends JFrame {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                char ch = e.getKeyChar();
-                System.out.println("You released: " + ch);
+                System.out.println("You released: " + e.getKeyChar());
 
-                // Clear the text field
-                inputField.setText("");
+                /* // Clear the text field
+                inputField.setText(""); */
 
                 // Gestiscto le keys rilasciate
-                switch (ch) {
-                    case 'w', 'W' -> wPressed = false;
-                    case 's', 'S' -> sPressed = false;
-                    case 'a', 'A' -> aPressed = false;
-                    case 'd', 'D' -> dPressed = false;
-                    case 'e', 'E' -> ePressed = false;
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_W, KeyEvent.VK_UP -> wPressed = false;
+                    case KeyEvent.VK_A, KeyEvent.VK_LEFT -> aPressed = false;
+                    case KeyEvent.VK_S, KeyEvent.VK_DOWN -> sPressed = false;
+                    case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> dPressed = false;
+                    case KeyEvent.VK_E -> ePressed = false;
                     default -> {
                         wPressed = false;
                         aPressed = false;
@@ -93,6 +91,61 @@ public class ContinuousCharReaderUI extends JFrame {
                 
                 changeAction();
             }
+
+            // @Override
+            // public void keyTyped(KeyEvent e) {
+            //     char ch = e.getKeyChar();
+            //     System.out.println("You pressed: " + ch);
+
+            //     // Clear the text field
+            //     inputField.setText("");
+
+            //     // Gestiscto le keys premute
+            //     switch (ch) {
+            //         case 'w', 'W', KeyEvent.VK_UP -> wPressed = true;
+            //         case 's', 'S', KeyEvent.VK_DOWN -> sPressed = true;
+            //         case 'a', 'A', KeyEvent.VK_LEFT -> aPressed = true;
+            //         case 'd', 'D', KeyEvent.VK_RIGHT -> dPressed = true;
+            //         case 'e', 'E' -> ePressed = true;
+            //         case 'q', 'Q' -> System.exit(0);
+            //         default -> {
+            //             wPressed = false;
+            //             aPressed = false;
+            //             sPressed = false;
+            //             dPressed = false;
+            //             ePressed = false;
+            //         }
+            //     }
+
+            //     changeAction();
+            // }
+
+            // @Override
+            // public void keyReleased(KeyEvent e) {
+            //     char ch = e.getKeyChar();
+            //     System.out.println("You released: " + ch);
+
+            //     // Clear the text field
+            //     inputField.setText("");
+
+            //     // Gestiscto le keys rilasciate
+            //     switch (ch) {
+            //         case 'w', 'W', KeyEvent.VK_UP -> wPressed = false;
+            //         case 's', 'S', KeyEvent.VK_DOWN -> sPressed = false;
+            //         case 'a', 'A', KeyEvent.VK_LEFT -> aPressed = false;
+            //         case 'd', 'D', KeyEvent.VK_RIGHT -> dPressed = false;
+            //         case 'e', 'E' -> ePressed = false;
+            //         default -> {
+            //             wPressed = false;
+            //             aPressed = false;
+            //             sPressed = false;
+            //             dPressed = false;
+            //             ePressed = false;
+            //         }
+            //     }
+                
+            //     changeAction();
+            // }
         });
 
         // Make the frame visible
