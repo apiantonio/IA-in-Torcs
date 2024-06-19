@@ -184,9 +184,9 @@ public class SimpleDriver extends Controller {
     }
 
     /**
-     * metodo control da usare nella fase operativa
+     * Metodo control da usare nella fase operativa,
      * ogni delta millisecodi classifica i valori dei sensori ed esegue un'azione di conseguenza
-     */
+     **/
     @Override
     public Action control(SensorModel sensors) {
         
@@ -197,30 +197,30 @@ public class SimpleDriver extends Controller {
         } else {
             
             double angleToTrackAxis = sensors.getAngleToTrackAxis();
-            /*Controlla se l'auto è attualmente bloccata*/
+            // Controlla se l'auto è attualmente bloccata //
             
-            /**
-             * Se l'auto ha un angolo, rispetto alla traccia, superiore a 30° incrementa "stuck" che è una variabile che indica per
-             * quanti cicli l'auto è in condizione di difficoltà. Quando l'angolo si riduce, "stuck" viene riportata a 0 per indicare
-             * che l'auto è uscita dalla situaizone di difficoltà
-             **/
+            //
+            // Se l'auto ha un angolo, rispetto alla traccia, superiore a 30° incrementa "stuck" che è una variabile che indica per
+            // quanti cicli l'auto è in condizione di difficoltà. Quando l'angolo si riduce, "stuck" viene riportata a 0 per indicare
+            // che l'auto è uscita dalla situaizone di difficoltà
+            //
             if (Math.abs(angleToTrackAxis) > stuckAngle) {
                 // update stuck counter
                 stuck++;
             }
 
             // Applicare la polizza di recupero o meno in base al tempo trascorso
-            /**
-             * questa codice per "sbloccare" l'auto è applicato solo nel caso in cui stuck > 25
-             * in altre situazioni anche se l'auto è bloccata viene applicato un comportamento coerente col dataset
-             * Se "stuck" è superiore a 25 (stuckTime) allora procedi a entrare in situazione di RECOVERY per far fronte alla
-             * situazione di difficoltà
-            **/
+            // 
+            // questa codice per "sbloccare" l'auto è applicato solo nel caso in cui stuck > 25
+            // in altre situazioni anche se l'auto è bloccata viene applicato un comportamento coerente col dataset
+            // Se "stuck" è superiore a 25 (stuckTime) allora procedi a entrare in situazione di RECOVERY per far fronte alla
+            // situazione di difficoltà
+            //
             if (stuck > stuckTime) { //Auto Bloccata
-                /**
-                 * Impostare la marcia e il comando di sterzata supponendo che l'auto stia puntando in una direzione al di fuori di
-                * pista
-                **/
+                //
+                // Impostare la marcia e il comando di sterzata supponendo che l'auto stia puntando in una direzione al di fuori di
+                // pista
+                //
 
                 // Per portare la macchina parallela all'asse TrackPos
                 float steer = (float) (-sensors.getAngleToTrackAxis() / steerLock);
@@ -245,7 +245,7 @@ public class SimpleDriver extends Controller {
                 return action;
             }
 
-            /*Auto non Bloccata*/
+            //  Auto non Bloccata //
             
             // prendo i dati dei sensori e li normalizzo per classificarli
             double[] trackEdgeSensors = sensors.getTrackEdgeSensors(); // array dei sensori
