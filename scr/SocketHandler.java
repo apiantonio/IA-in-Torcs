@@ -1,12 +1,3 @@
-/**
- * La classe istanzia la comunicazione tramite Socket con il server.
- * Definisce le funzioni per:
- * • Inizializzazione della comunicazione UDP
- * • Ricezione pacchetto dati (es: dai sensori)
- * • Invio del pacchetto dati (azioni da intraprendere)
- * 
- *  NB: La classe è già implementata e non richiede alcuna modifica
- */
 package scr;
 
 import java.io.IOException;
@@ -18,8 +9,13 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 /**
- * @author Daniele Loiacono
+ * La classe istanzia la comunicazione tramite Socket con il server.
+ * Definisce le funzioni per:
+ * • Inizializzazione della comunicazione UDP
+ * • Ricezione pacchetto dati (es: dai sensori)
+ * • Invio del pacchetto dati (azioni da intraprendere)
  *
+ * @author Daniele Loiacono
  */
 public class SocketHandler {
 
@@ -86,7 +82,6 @@ public class SocketHandler {
             socket.setSoTimeout(0);
             return received;
         } catch (SocketException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;

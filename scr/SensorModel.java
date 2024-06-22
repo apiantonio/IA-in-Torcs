@@ -1,22 +1,11 @@
-/*
-Contiene i prototipi delle funzioni da 
-implementare per rendere disponibili i valori 
-della telemetria ricevuta (sensori)
-L’implementazione delle funzioni la vedremo in 
-MessageBasedSensorModel.
-
-NB: La classe è già implementata e non richiede alcuna modifica
-
-*/
-
 package scr;
 
-/**
- * Created by IntelliJ IDEA. User: Administrator Date: Mar 4, 2008 Time:
- * 12:18:47 PM
+/*
+ * Contiene i prototipi delle funzioni da implementare per rendere disponibili i valori della
+ * telemetria ricevuta (sensori) L’implementazione delle funzioni la vedremo in
+ * MessageBasedSensorModel.
  */
 public interface SensorModel {
-
 
 	// Informazioni di base sull'auto e sul tracciato
  

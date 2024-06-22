@@ -1,19 +1,3 @@
-/*
-    La classe implementa la funzione per interpretare i 
-messaggi ricevuti dal server e converte il messaggio 
-testuale ricevuto in un hashtable che rappresenta lo 
-stato del sistema.
-    private Hashtable<String, Object> table = new Hashtable<String, Object>();
-La funzione viene richiamata nella classe MessageBasedSensorModel.
-Ad esempio, per accedere al valore relativo al danno 
-(stato=damage): (Double) message.getReading("damage");
-La getReading incapsula l’accesso alla tabella hash
-(tramite la chiave «damage»)
-
-
-NB: La classe è già implementata e non richiede alcuna modifica
-
-*/
 
 package scr;
 
@@ -21,8 +5,13 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
-/**
- * Created by IntelliJ IDEA. User: Administrator Date: Feb 22, 2008 Time: 6:17:32 PM
+/*
+ * La classe implementa la funzione per interpretare i messaggi ricevuti dal server e converte il
+ * messaggio testuale ricevuto in un hashtable che rappresenta lo stato del sistema. private
+ * Hashtable<String, Object> table = new Hashtable<String, Object>(); La funzione viene richiamata
+ * nella classe MessageBasedSensorModel. Ad esempio, per accedere al valore relativo al danno
+ * (stato=damage): (Double) message.getReading("damage"); La getReading incapsula l’accesso alla
+ * tabella hash (tramite la chiave «damage»)
  */
 public class MessageParser {
 

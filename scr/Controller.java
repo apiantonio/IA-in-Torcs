@@ -1,12 +1,9 @@
-/*
-La classe presenta i metodi principali da 
-implementare al fine di realizzare un agente.
-
-NB: La classe è già implementata e non richiede alcuna modifica
-*/
 
 package scr;
 
+/*
+ * La classe presenta i metodi principali da implementare al fine di realizzare un agente. 
+ */
 public abstract class Controller {
 
     public enum Stage {

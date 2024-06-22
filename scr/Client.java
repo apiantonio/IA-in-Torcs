@@ -1,3 +1,9 @@
+
+package scr;
+
+import java.util.StringTokenizer;
+import scr.Controller.Stage;
+
 /**
  * La classe consente la comunicazione con il BotServer tramite una serie di parametri. 
  * Gli obbligatori sono:
@@ -7,16 +13,7 @@
  *   scr_server2 ti metti in ascolto su 3002 ecc.
  * • Client
  * 
- *   NB: La classe è già implementata e non richiede alcuna modifica
- */
-package scr;
-
-import java.util.StringTokenizer;
-import scr.Controller.Stage;
-
-/**
  * @author Daniele Loiacono
- *
  */
 public class Client {
 
@@ -156,7 +153,7 @@ public class Client {
             if (entity.equals("verbose")) {
                 if (value.equals("on")) {
                     verbose = true;
-                } else if (value.equals("off")) { // qui prima era false
+                } else if (value.equals("off")) {
                     verbose = false;
                 } else {
                     System.out.println(entity + ":" + value + " is not a valid option");

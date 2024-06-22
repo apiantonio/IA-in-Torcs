@@ -15,6 +15,8 @@ package scr;
  */
 public class Action {
 
+    
+
     public double accelerate = 0; // 0..1
     public double brake = 0; // 0..1
     public double clutch = 0; // 0..1

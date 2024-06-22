@@ -6,15 +6,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-// Classificatore KNN
+/**
+ * Implementa un classificatore di tipo KNN, in particolare costruisce un kd-tree con i dati forniti
+ * nel dataset e fornisce un metodo per classificare un punto tramite il confronto con i k punti più
+ * vicini.
+ */
 public class NearestNeighbor {
 
     private final List<Sample> trainingData;
     private KDTree kdtree;
-    private final int[] classCounts; // VERIFICA NEI COSTRUTTORI CHE QUESTO SIA CONFORME CON QUELLO CHE STAI IPOTIZZANDO!
-    private final String firstLineOfTheFile; // VERIFICA NEI COSTRUTTORI CHE QUESTO SIA CONFORME CON QUELLO CHE STAI IPOTIZZANDO!
+    private final int[] classCounts; // label delle classi 
+    private final String firstLineOfTheFile; // header del dataset.csv
     
-    public static final int NUM_CLASS = 10; // Le classi PER ORA vanno da 0 a 9
+    public static final int NUM_CLASS = 10; // Le classi vanno da 0 a 9
 
     public NearestNeighbor(String filename) {
         this.trainingData = new ArrayList<>();
@@ -49,7 +53,7 @@ public class NearestNeighbor {
 
     public int classify(Sample testPoint, int k) {
         List<Sample> kNearestNeighbors = findKNearestNeighbors(testPoint, k);
-
+        
         // Count the occurrences of each class in the k nearest neighbors
         for (Sample neighbor : kNearestNeighbors) {
             classCounts[neighbor.getCls()]++;

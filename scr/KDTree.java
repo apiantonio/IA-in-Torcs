@@ -6,17 +6,19 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 /*
-KD-Tree for an efficient implementation of the K-NN.
-Do not touch!
-
-CLASSE ADATTATA ALLA NOSTRA IMPLEMENTAZIONE DI SAMPLE e dunque alle nostre features
-*/
+ * KD-Tree for an efficient implementation of the K-NN.
+ * Do not touch!
+ */
 class KDTree {
 
-    private final KDNode root;
-    private final int DIMENSIONS = Sample.N_FEATURES; // le dimensioni sono pari al numero di features;
+    private KDNode root;
+    private int dimensions;
 
     public KDTree(List<Sample> points) {
+        if (points.isEmpty()) {
+            throw new IllegalArgumentException("Points list cannot be empty");
+        }
+        this.dimensions = points.get(0).features.length;
         root = buildTree(points, 0);
     }
 
@@ -34,8 +36,8 @@ class KDTree {
             return null;
         }
 
-        int axis = depth % DIMENSIONS;
-        points.sort(Comparator.comparingDouble(p -> p.getFeatures()[axis]));
+        int axis = depth % dimensions;
+        points.sort(Comparator.comparingDouble(p -> p.features[axis]));
         int medianIndex = points.size() / 2;
         KDNode node = new KDNode(points.get(medianIndex));
 
@@ -64,13 +66,13 @@ class KDTree {
             pq.offer(node.point);
         }
 
-        int axis = depth % DIMENSIONS;
-        KDNode nearNode = (target.getFeatures()[axis] < node.point.getFeatures()[axis]) ? node.left : node.right;
+        int axis = depth % dimensions;
+        KDNode nearNode = (target.features[axis] < node.point.features[axis]) ? node.left : node.right;
         KDNode farNode = (nearNode == node.left) ? node.right : node.left;
 
         kNearestNeighbors(nearNode, target, k, depth + 1, pq);
 
-        if (pq.size() < k || Math.abs(target.getFeatures()[axis] - node.point.getFeatures()[axis]) < target.distance(pq.peek())) {
+        if (pq.size() < k || Math.abs(target.features[axis] - node.point.features[axis]) < target.distance(pq.peek())) {
             kNearestNeighbors(farNode, target, k, depth + 1, pq);
         }
     }

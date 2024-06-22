@@ -1,19 +1,9 @@
-/*
-La classe implementa l’interfaccia SensorModel, 
-ed ha il compito di rendere disponibili i sensori 
-della telemetria fornita dal simulatore e ricevuti 
-attraverso la socket.
-I parametri sono disponibili con le funzioni get di 
-seguito riportate.
-
-NB: La classe è già implementata e non richiede alcuna modifica
-
-*/
-
 package scr;
 
-/**
- * Created by IntelliJ IDEA. User: Administrator Date: Mar 4, 2008 Time: 3:44:29 PM
+/*
+ * La classe implementa l’interfaccia SensorModel, ed ha il compito di rendere disponibili i sensori
+ * della telemetria fornita dal simulatore e ricevuti attraverso la socket. I parametri sono
+ * disponibili con le funzioni get di seguito riportate.
  */
 public class MessageBasedSensorModel implements SensorModel {
 

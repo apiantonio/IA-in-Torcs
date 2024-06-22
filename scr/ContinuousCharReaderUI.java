@@ -5,27 +5,32 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.*;
 
+/*
+ * permette la lettura dei tasti premuti e rilasciati da tastiera durante la fase di creazione del
+ * dataset e la creazione di valori dell’action da compiere di conseguenza ai tasti
+ * premuti/rilasciati.
+ */
 public class ContinuousCharReaderUI extends JFrame {
     private JTextField inputField;
- 
-    // Booleani per indicare quale tasto è stato cliccato 
-    private boolean wPressed = false;
-    private boolean aPressed = false;
-    private boolean sPressed = false;
-    private boolean dPressed = false;
+
+    // Booleani per indicare quale tasto è stato cliccato
+    private boolean wPressed = false; // per accelerare
+    private boolean aPressed = false; // sterzata a sinistra
+    private boolean sPressed = false; // sterzata a destra
+    private boolean dPressed = false; // per frenare
     private boolean ePressed = false; // per la retromarcia
 
     // costanti di utilità
-    public static final double DELTA_ACCEL = 0.5;
-    public static final double DELTA_STEER = 0.05;
-    public static final double DELTA_BRAKE = 0.3;
+    public static final double DELTA_ACCEL = 0.055;
+    public static final double DELTA_STEER = 0.04;
+    public static final double DELTA_BRAKE = 0.1;
 
     // Valori di accelerazione, sterzata e freno da passare al driver
     private double accel = 0.0;
     private double steer = 0.0;
     private double brake = 0.0;
 
-    public ContinuousCharReaderUI() { 
+    public ContinuousCharReaderUI() {
         // Set up the frame
         setTitle("Continuous Character Reader");
         setSize(300, 100);
@@ -38,7 +43,7 @@ public class ContinuousCharReaderUI extends JFrame {
 
         // Add key listener to the text field
         inputField.addKeyListener(new KeyAdapter() {
-            
+
             @Override
             public void keyPressed(KeyEvent e) {
                 System.out.println("You pressed: " + e.getKeyChar());
@@ -88,7 +93,7 @@ public class ContinuousCharReaderUI extends JFrame {
                         ePressed = false;
                     }
                 }
-                
+
                 changeAction();
             }
         });
@@ -99,27 +104,27 @@ public class ContinuousCharReaderUI extends JFrame {
 
     // calcola il comportamento da seguire quando viene premuto/rilasciato un tasto della tastiera
     private void changeAction() {
-        
+
         if (wPressed || ePressed) {
-            // se viene premuto w o e (retromarcia) imposto il freno a 0 e considero i casi in cui siano 
-            // premuti anche i tasi per sterzare (a, d)
+            // se viene premuto w o e (retromarcia) imposto il freno a 0 e considero i casi in cui
+            // siano premuti anche i tasi per sterzare (a, d)
             brake = 0.0;
             if (aPressed) { // wa
                 // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
                 steer += DELTA_STEER;
-                steer = steer > 1.0 ? 1.0 : steer;
-                //deve anche diminuire l'accelerazione
+                steer = steer > 0.5 ? 0.5 : steer;
+                // deve anche diminuire l'accelerazione
                 accel -= Math.abs(steer);
                 accel = accel < 0.37 ? 0.37 : accel;
             } else if (dPressed) { // wd
                 // se premo d allora sterza verso destra gradualmente, massimo -1.0
                 steer -= DELTA_STEER;
-                steer = steer < -1.0 ? -1.0 : steer;
-                //deve anche diminuire l'accelerazione
+                steer = steer < -0.5 ? -0.5 : steer;
+                // deve anche diminuire l'accelerazione
                 accel -= Math.abs(steer);
                 accel = accel < 0.37 ? 0.37 : accel;
             } else { // solo w oppure e
-                // se premo w allora accelera gradualmente, tetto massimo 1.0 
+                // se premo w allora accelera gradualmente, tetto massimo 1.0
                 accel += DELTA_ACCEL;
                 accel = accel > 1.0 ? 1.0 : accel;
                 steer = 0.0;
@@ -130,19 +135,19 @@ public class ContinuousCharReaderUI extends JFrame {
             brake = brake > 1.0 ? 1.0 : brake;
             accel = 0.0;
             steer = 0.0;
-        } else if (aPressed) { 
+        } else if (aPressed) {
             // se premo a allora sterza verso sinistra gradualmente, massimo 1.0
             steer += DELTA_STEER;
-            steer = steer > 1.0 ? 1.0 : steer;
+            steer = steer > 0.5 ? 0.5 : steer;
             accel = 0.0;
             brake = 0.0;
         } else if (dPressed) {
             // se premo d allora sterza verso destra gradualmente, massimo -1.0
             steer -= DELTA_STEER;
-            steer = steer < -1.0 ? -1.0 : steer;
+            steer = steer < -0.5 ? -0.5 : steer;
             accel = 0.0;
             brake = 0.0;
-        } else { 
+        } else {
             // non viene premuto nulla
             accel = 0.0;
             steer = 0.0;
