@@ -11,7 +11,6 @@ import static scr.ContinuousCharReaderUI.*;
  * La classe utilizza i dati acquisiti dai sensori della telemetria e restituisce le azioni da
  * intraprendere per la guida dell’auto, implementando i metodi presenti in Controller.
  */
-
 public class SimpleDriver extends Controller {
 
     /* Costanti di cambio marcia */
@@ -23,15 +22,10 @@ public class SimpleDriver extends Controller {
     final float stuckAngle = (float) 0.523598775; // PI/6
 
     /* Costanti di accelerazione e di frenata */
-    final float maxSpeedDist = 70;
     final float maxSpeed = 210; // originale 150
-    final float sin5 = (float) 0.08716;
-    final float cos5 = (float) 0.99619;
 
     /* Costanti di sterzata */
     final float steerLock = (float) 0.785398;
-    final float steerSensitivityOffset = (float) 80.0;
-    final float wheelSensitivityCoeff = 1;
 
     /* Costanti del filtro ABS */
     final float wheelRadius[] = {(float) 0.3179, (float) 0.3179, (float) 0.3276, (float) 0.3276};
@@ -42,7 +36,6 @@ public class SimpleDriver extends Controller {
     /* Costanti da stringere */
     final float clutchMax = (float) 0.5;
     final float clutchDelta = (float) 0.05;
-    final float clutchRange = (float) 0.82;
     final float clutchDeltaTime = (float) 0.02;
     final float clutchDeltaRaced = 10;
     final float clutchDec = (float) 0.01;
