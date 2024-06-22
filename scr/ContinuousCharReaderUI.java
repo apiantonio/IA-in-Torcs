@@ -13,12 +13,11 @@ public class ContinuousCharReaderUI extends JFrame {
     private boolean aPressed = false;
     private boolean sPressed = false;
     private boolean dPressed = false;
-    private boolean ePressed = false; // per la retromarcia
 
     // costanti di utilità
-    public static final double DELTA_ACCEL = 0.5;
-    public static final double DELTA_STEER = 0.05;
-    public static final double DELTA_BRAKE = 0.3;
+    public static final double DELTA_ACCEL = 0.065;
+    public static final double DELTA_STEER = 0.04;
+    public static final double DELTA_BRAKE = 0.1;
 
     // Valori di accelerazione, sterzata e freno da passare al driver
     private double accel = 0.0;
@@ -52,14 +51,12 @@ public class ContinuousCharReaderUI extends JFrame {
                     case KeyEvent.VK_A, KeyEvent.VK_LEFT -> aPressed = true;
                     case KeyEvent.VK_S, KeyEvent.VK_DOWN -> sPressed = true;
                     case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> dPressed = true;
-                    case KeyEvent.VK_E -> ePressed = true;
                     case KeyEvent.VK_Q -> System.exit(0);
                     default -> {
                         wPressed = false;
                         aPressed = false;
                         sPressed = false;
                         dPressed = false;
-                        ePressed = false;
                     }
                 }
 
@@ -79,13 +76,11 @@ public class ContinuousCharReaderUI extends JFrame {
                     case KeyEvent.VK_A, KeyEvent.VK_LEFT -> aPressed = false;
                     case KeyEvent.VK_S, KeyEvent.VK_DOWN -> sPressed = false;
                     case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> dPressed = false;
-                    case KeyEvent.VK_E -> ePressed = false;
                     default -> {
                         wPressed = false;
                         aPressed = false;
                         sPressed = false;
                         dPressed = false;
-                        ePressed = false;
                     }
                 }
                 
@@ -100,7 +95,7 @@ public class ContinuousCharReaderUI extends JFrame {
     // calcola il comportamento da seguire quando viene premuto/rilasciato un tasto della tastiera
     private void changeAction() {
         
-        if (wPressed || ePressed) {
+        if (wPressed) {
             // se viene premuto w o e (retromarcia) imposto il freno a 0 e considero i casi in cui siano 
             // premuti anche i tasi per sterzare (a, d)
             brake = 0.0;
@@ -176,10 +171,6 @@ public class ContinuousCharReaderUI extends JFrame {
 
     public boolean dPressed() {
         return dPressed;
-    }
-
-    public boolean ePressed() {
-        return ePressed;
     }
 
 }

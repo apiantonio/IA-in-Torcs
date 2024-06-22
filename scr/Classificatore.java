@@ -13,7 +13,7 @@ public class Classificatore {
     
     public static int classifica(Sample testSample) {
 
-        String prototypes_filename = "../src/dataset.csv";
+        String prototypes_filename = "../IA-In-Torcs/dataset.csv";
         
         // Costruisco il mio classificatore a partire dal nome del file dei prototipi
         NearestNeighbor knn = new NearestNeighbor(prototypes_filename);

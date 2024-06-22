@@ -14,7 +14,7 @@ public class NearestNeighbor {
     private final int[] classCounts; // VERIFICA NEI COSTRUTTORI CHE QUESTO SIA CONFORME CON QUELLO CHE STAI IPOTIZZANDO!
     private final String firstLineOfTheFile; // VERIFICA NEI COSTRUTTORI CHE QUESTO SIA CONFORME CON QUELLO CHE STAI IPOTIZZANDO!
     
-    public static final int NUM_CLASS = 10; // Le classi PER ORA vanno da 0 a 9
+    public static final int NUM_CLASS = 7; // Le classi vanno da 0 a 6
 
     public NearestNeighbor(String filename) {
         this.trainingData = new ArrayList<>();
