@@ -11,7 +11,19 @@ public class Classificatore {
 
     public Classificatore() {}
 
-    
+    /**
+     * esegue una normalizzazione di un valore x ad un range compreso tra -1 e 1
+     * 
+     * @param x è il valore da normalizare
+     * @param min rappresenta il valore minimo che può assumere x
+     * @param max rappresenta il valore massimo che può assumere x
+     * @return il valore x normalizzato nell'intervallo [-1, 1]
+     */
+    public static double normalize(double x,  double min, double max) {
+        double n = 2 * ((x - min) / (max - min)) - 1;
+        return n > 1.0 ? 1.0 : ( n < -1.0 ? -1.0 : n );
+    }
+
     /**
      * Determina la classe di un punto passato in input
      * 
@@ -20,7 +32,7 @@ public class Classificatore {
      */
     public static int classifica(Sample sample) {
 
-        String prototypes_filename = "../src/dataset.csv";
+        String prototypes_filename = "../IA-In-Torcs/dataset.csv";
         
         // Costruisco il mio classificatore a partire dal nome del file dei prototipi
         NearestNeighbor knn = new NearestNeighbor(prototypes_filename);

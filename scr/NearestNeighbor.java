@@ -18,7 +18,7 @@ public class NearestNeighbor {
     private final int[] classCounts; // label delle classi 
     private final String firstLineOfTheFile; // header del dataset.csv
     
-    public static final int NUM_CLASS = 10; // Le classi vanno da 0 a 9
+    public static final int NUM_CLASS = 7; // Le classi vanno da 0 a 6
 
     public NearestNeighbor(String filename) {
         this.trainingData = new ArrayList<>();

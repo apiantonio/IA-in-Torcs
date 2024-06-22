@@ -11,6 +11,7 @@ import static scr.ContinuousCharReaderUI.*;
  * La classe utilizza i dati acquisiti dai sensori della telemetria e restituisce le azioni da
  * intraprendere per la guida dell’auto, implementando i metodi presenti in Controller.
  */
+
 public class SimpleDriver extends Controller {
 
     /* Costanti di cambio marcia */
@@ -104,79 +105,6 @@ public class SimpleDriver extends Controller {
         }
     }
 
-    private float getSteer(SensorModel sensors) {
-        /**
-         * L'angolo di sterzata viene calcolato correggendo l'angolo effettivo della vettura
-         * rispetto all'asse della pista [sensors.getAngle()] e regolando la posizione della vettura
-         * rispetto al centro della pista [sensors.getTrackPos()*0,5].
-         */
-        float targetAngle = (float) (sensors.getAngleToTrackAxis() - sensors.getTrackPosition() * 0.5);
-        // ad alta velocità ridurre il comando di sterzata per evitare di perdere il controllo
-        if (sensors.getSpeed() > steerSensitivityOffset) {
-            return (float) (targetAngle / (steerLock * (sensors.getSpeed() - steerSensitivityOffset)
-                    * wheelSensitivityCoeff));
-        } else {
-            return (targetAngle) / steerLock;
-        }
-    }
-
-    private float getAccel(SensorModel sensors) {
-        // controlla se l'auto è fuori dalla carreggiata
-        if (sensors.getTrackPosition() > -1 && sensors.getTrackPosition() < 1) {
-            /*
-             * Capisco cosa sta succedendo davanti al veicolo, guardando poco a destra e poco a
-             * sinistra…
-             */
-            // lettura del sensore a +5 gradi rispetto all'asse dell'automobile
-            float rxSensor = (float) sensors.getTrackEdgeSensors()[10];
-            // lettura del sensore parallelo all'asse della vettura
-            float sensorsensor = (float) sensors.getTrackEdgeSensors()[9];
-            // lettura del sensore a -5 gradi rispetto all'asse dell'automobile
-            float sxSensor = (float) sensors.getTrackEdgeSensors()[8];
-
-            float targetSpeed;
-
-            // Se la pista è rettilinea e abbastanza lontana da una curva, quindi va alla massima
-            // velocità
-            if (sensorsensor > maxSpeedDist || (sensorsensor >= rxSensor && sensorsensor >= sxSensor)) {
-                targetSpeed = maxSpeed;
-            } else { // c'è una curva
-                /*
-                 * se la curva è molto pronunciata, modero la velocità di conseguenza.
-                 */
-                // In prossimità di una curva a destra
-                if (rxSensor > sxSensor) {
-
-                    // Calcolo dell'"angolo" di sterzata
-                    float h = sensorsensor * sin5;
-                    float b = rxSensor - sensorsensor * cos5;
-                    float sinAngle = b * b / (h * h + b * b);
-
-                    // Set della velocità in base alla curva
-                    targetSpeed = maxSpeed * (sensorsensor * sinAngle / maxSpeedDist);
-                } // In prossimità di una curva a sinistra
-                else {
-                    // Calcolo dell'"angolo" di sterzata
-                    float h = sensorsensor * sin5;
-                    float b = sxSensor - sensorsensor * cos5;
-                    float sinAngle = b * b / (h * h + b * b);
-
-                    // Set della velocità in base alla curva
-                    targetSpeed = maxSpeed * (sensorsensor * sinAngle / maxSpeedDist);
-                }
-            }
-
-            /**
-             * Il comando di accelerazione/frenata viene scalato in modo esponenziale rispetto alla
-             * differenza tra velocità target e quella attuale
-             */
-            return (float) (2 / (1 + Math.exp(sensors.getSpeed() - targetSpeed)) - 1);
-        } else // Quando si esce dalla carreggiata restituisce un comando di accelerazione moderata
-        {
-            return (float) 0.3;
-        }
-    }
-
     /**
      * Metodo control da usare nella fase operativa, ogni delta millisecodi classifica i valori dei
      * sensori ed esegue un'azione di conseguenza
@@ -187,7 +115,7 @@ public class SimpleDriver extends Controller {
         double angleToTrackAxis = sensors.getAngleToTrackAxis();
         clutch = clutching(sensors, clutch);
 
-        //  
+        //
         // Se l'auto ha un angolo, rispetto alla traccia, superiore a 30° incrementa "stuck" che è
         // una variabile che indica per
         // quanti cicli l'auto è in condizione di difficoltà. Quando l'angolo si riduce, "stuck"
@@ -316,7 +244,7 @@ public class SimpleDriver extends Controller {
                     brake += 1.5 * DELTA_BRAKE;
                     brake = brake > 1.0 ? 1.0 : brake;
                     // se si vuole frenare allora applico l'ABS al freno
-                    brake = filterABS(sensors, brake);
+                //  brake = filterABS(sensors, brake);
                 }
                 // premo d
                 case 4 -> {
@@ -330,7 +258,7 @@ public class SimpleDriver extends Controller {
                 case 5 -> {
                     accel -= Math.abs(steer);
                     accel = accel < 0.25 ? 0.25 : accel;
-                    steer +=1.5 * DELTA_STEER;
+                    steer += 1.5 * DELTA_STEER;
                     steer = steer > 0.5 ? 0.5 : steer;
                     brake = 0.0;
                 }
@@ -377,7 +305,7 @@ public class SimpleDriver extends Controller {
      * come percepito dal driver, il metodo restituisce l'azione da intraprendere a secnoda del
      * tasto premuto sulla tastiera
      */
-    /* @Override
+    /*@Override
     public Action control(SensorModel sensors) {
         // azione da intraprendere
         Action action = new Action();
@@ -435,19 +363,7 @@ public class SimpleDriver extends Controller {
         return action;
     } */
 
-    /**
-     * esegue una normalizzazione di un valore x ad un range compreso tra -1 e 1
-     * 
-     * @param x è il valore da normalizare
-     * @param min rappresenta il valore minimo che può assumere x
-     * @param max rappresenta il valore massimo che può assumere x
-     * @return il valore x normalizzato nell'intervallo [-1, 1]
-     */
-    private double normalize(double x,  double min, double max) {
-        double n = 2 * ((x - min) / (max - min)) - 1;
-        return n > 1.0 ? 1.0 : ( n < -1.0 ? -1.0 : n );
-    }
-
+    
     /**
      * Stampa una nuova riga nel dataset
      * 
