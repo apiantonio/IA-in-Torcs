@@ -7,9 +7,11 @@ import java.io.PrintWriter;
 import java.util.Locale;
 import static scr.Classificatore.*;
 import static scr.ContinuousCharReaderUI.*;
+
 /**
- * La classe utilizza i dati acquisiti dai sensori della telemetria e restituisce le azioni da
- * intraprendere per la guida dell’auto, implementando i metodi presenti in Controller.
+ * La classe utilizza i dati acquisiti dai sensori della telemetria e
+ * restituisce le azioni da intraprendere per la guida dell’auto, implementando
+ * i metodi presenti in Controller.
  */
 public class SimpleDriver extends Controller {
 
@@ -59,7 +61,7 @@ public class SimpleDriver extends Controller {
     // Nel costruttore chiamo il char reader con un thread apposito
     public SimpleDriver() {
         // Thread esterno che lancia il char reader per l'interazione da tastiera
-    //    SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); }); // commentare questa riga durante fase operativa
+    //  SwingUtilities.invokeLater(() -> { ccr = new ContinuousCharReaderUI(); }); // commentare questa riga durante fase operativa
     }
 
     // il metodo viene chiamato quando il client vuole inoltrare una richiesta di riavvio della
@@ -99,8 +101,8 @@ public class SimpleDriver extends Controller {
     }
 
     /**
-     * Metodo control da usare nella fase operativa, ogni delta millisecodi classifica i valori dei
-     * sensori ed esegue un'azione di conseguenza
+     * Metodo control da usare nella fase operativa, ogni delta millisecodi
+     * classifica i valori dei sensori ed esegue un'azione di conseguenza
      **/
     @Override
     public Action control(SensorModel sensors) {
@@ -122,9 +124,9 @@ public class SimpleDriver extends Controller {
             // if not stuck reset stuck counter
             stuck = 0;
         }
-
+        
         // Auto Bloccata //
-
+        
         // Applicare la polizza di recupero o meno in base al tempo trascorso
         //
         // questa codice per "sbloccare" l'auto è applicato solo nel caso in cui stuck > 25
@@ -150,28 +152,17 @@ public class SimpleDriver extends Controller {
                 gear = 1;
                 steer = -steer;
             }
-            
-           double brake = 0.0;
-           // quando mette la retromarcia primafrena
-           if (gear == -1 && sensors.getSpeed() > 0) {
-               brake = 1.0;
-           } else if (gear != -1 && sensors.getSpeed() < 0) {
-               // se non si sta andando in retromarcia ma la velocità è negativa allora si vuole
-               // smettere di andare in retro dunque prima freno
-               brake = 1.0;
-           } 
-
+ 
             actionTodo.gear = gear;
             actionTodo.steering = steer;
             actionTodo.accelerate = 0.5;
-            actionTodo.brake = brake;
+            actionTodo.brake = 0.0;
             actionTodo.clutch = clutch;
 
             return actionTodo;
         }
 
         // Auto non Bloccata //
-
         long currentTime = System.currentTimeMillis();
         // esegue una nuova azione ogni DELTA_MILLIS
         if (currentTime - lastTimeDidAction < DELTA_MILLIS) {
@@ -193,7 +184,7 @@ public class SimpleDriver extends Controller {
 
             // creo sample coi dati, lo classifico e a seconda della classe predetta eseguo l'azione
             // corrispondente
-            double[] normalizedFeatures = {angleToTrackAxis, trackPosition, trackEdgeSensor11, 
+            double[] normalizedFeatures = {angleToTrackAxis, trackPosition, trackEdgeSensor11,
                 trackEdgeSensor10, trackEdgeSensor9, trackEdgeSensor8, trackEdgeSensor7, xSpeed, ySpeed};
             Sample newSample = new Sample(normalizedFeatures);
 
@@ -210,15 +201,15 @@ public class SimpleDriver extends Controller {
             // valori dell'azione a seconda della classe predetta
             switch (predictedClass) {
                 // nessun tasto premuto
-                case 0 -> { 
+                case 0 -> {
                     // azione nulla
                     accel = 0.0;
                     steer = 0.0;
-                    brake = 0.0; 
+                    brake = 0.0;
                 }
                 // premuto w
                 case 1 -> {
-                    accel += 1.05 * DELTA_ACCEL;
+                    accel += 2.3 * DELTA_ACCEL;
                     accel = accel > 1.0 ? 1.0 : accel;
                     steer = 0.0;
                     brake = 0.0;
@@ -237,7 +228,7 @@ public class SimpleDriver extends Controller {
                     brake += 1.5 * DELTA_BRAKE;
                     brake = brake > 1.0 ? 1.0 : brake;
                     // se si vuole frenare allora applico l'ABS al freno
-                //  brake = filterABS(sensors, brake);
+                    //  brake = filterABS(sensors, brake);
                 }
                 // premo d
                 case 4 -> {
@@ -249,16 +240,16 @@ public class SimpleDriver extends Controller {
                 }
                 // premo w e a
                 case 5 -> {
-                    accel -= Math.abs(steer);
-                    accel = accel < 0.25 ? 0.25 : accel;
+                    accel -= 0.7 * Math.abs(steer);
+                    accel = accel < 0.3 ? 0.3 : accel;
                     steer += 1.5 * DELTA_STEER;
                     steer = steer > 0.5 ? 0.5 : steer;
                     brake = 0.0;
                 }
                 // premo w e d
                 case 6 -> {
-                    accel -= Math.abs(steer);
-                    accel = accel < 0.25 ? 0.25 : accel;
+                    accel -= 0.7 * Math.abs(steer);
+                    accel = accel < 0.3 ? 0.3 : accel;
                     steer -= 1.5 * DELTA_STEER;
                     steer = steer < -0.5 ? -0.5 : steer;
                     brake = 0.0;
@@ -271,13 +262,13 @@ public class SimpleDriver extends Controller {
             // per riposizionarti
             if (sensors.getTrackPosition() < -0.85) {
                 accel -= Math.abs(steer);
-                accel = accel < 0.25 ? 0.25 : accel;
-                steer += 0.8 * DELTA_STEER;
+                accel = accel < 0.3 ? 0.3 : accel;
+                steer += 0.6 * DELTA_STEER;
                 steer = steer > 0.5 ? 0.5 : steer;
             } else if (sensors.getTrackPosition() > 0.85) {
                 accel -= Math.abs(steer);
-                accel = accel < 0.25 ? 0.25 : accel;
-                steer -= 0.8 * DELTA_STEER;
+                accel = accel < 0.3 ? 0.3 : accel;
+                steer -= 0.6 * DELTA_STEER;
                 steer = steer < -0.5 ? -0.5 : steer;
             }
 
@@ -294,9 +285,9 @@ public class SimpleDriver extends Controller {
     }
 
     /**
-     * metodo control da usare per creare il dataset sensors rappresenta lo stato attuale del gioco
-     * come percepito dal driver, il metodo restituisce l'azione da intraprendere a secnoda del
-     * tasto premuto sulla tastiera
+     * metodo control da usare per creare il dataset sensors rappresenta lo
+     * stato attuale del gioco come percepito dal driver, il metodo restituisce
+     * l'azione da intraprendere a secnoda del tasto premuto sulla tastiera
      */
     /*@Override
     public Action control(SensorModel sensors) {
@@ -356,10 +347,9 @@ public class SimpleDriver extends Controller {
         return action;
     } */
 
-    
     /**
      * Stampa una nuova riga nel dataset
-     * 
+     *
      * @param sensors sono i sensori da cui prendere le features da scrivere
      * @param cls è la classe ground truth
      */
@@ -380,16 +370,16 @@ public class SimpleDriver extends Controller {
             double[] trackEdgeSensors = sensors.getTrackEdgeSensors();
             // Scrivi i valori normalizzati dei sensori nel file CSV
             csvWriter.printf(Locale.US, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n",
-                normalize(sensors.getAngleToTrackAxis(), -Math.PI, Math.PI),
-                normalize(sensors.getTrackPosition(), -100, 100),
-                normalize(trackEdgeSensors[11], -200, 200), // -10
-                normalize(trackEdgeSensors[10], -200, 200), // rx -5
-                normalize(trackEdgeSensors[9], -200, 200), // ctr 0
-                normalize(trackEdgeSensors[8], -200, 200), // sx +5
-                normalize(trackEdgeSensors[7], -200, 200), // 10
-                normalize(sensors.getSpeed(), -maxSpeed, maxSpeed), // velocità lungo l'asse x
-                normalize(sensors.getLateralSpeed(), -maxSpeed, maxSpeed), // veloxità lungo l'asse y
-                cls // classe
+                    normalize(sensors.getAngleToTrackAxis(), -Math.PI, Math.PI),
+                    normalize(sensors.getTrackPosition(), -100, 100),
+                    normalize(trackEdgeSensors[11], -200, 200), // -10
+                    normalize(trackEdgeSensors[10], -200, 200), // rx -5
+                    normalize(trackEdgeSensors[9], -200, 200), // ctr 0
+                    normalize(trackEdgeSensors[8], -200, 200), // sx +5
+                    normalize(trackEdgeSensors[7], -200, 200), // 10
+                    normalize(sensors.getSpeed(), -maxSpeed, maxSpeed), // velocità lungo l'asse x
+                    normalize(sensors.getLateralSpeed(), -maxSpeed, maxSpeed), // veloxità lungo l'asse y
+                    cls // classe
             );
 
         } catch (IOException e) {
@@ -397,7 +387,6 @@ public class SimpleDriver extends Controller {
         }
     }
 
-            // float                              //float
     private double filterABS(SensorModel sensors, double brake) {
         // Converte la velocità in m/s
         float speed = (float) (sensors.getSpeed() / 3.6);

@@ -47,10 +47,10 @@ public class ContinuousCharReaderUI extends JFrame {
             public void keyPressed(KeyEvent e) {
                 System.out.println("You pressed: " + e.getKeyChar());
 
-                // Clear the text field
+                // ripulisce il text field
                 inputField.setText("");
 
-                // Gestiscto le keys premute
+                // gestisco le keys premute
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_W, KeyEvent.VK_UP -> wPressed = true;
                     case KeyEvent.VK_A, KeyEvent.VK_LEFT -> aPressed = true;
@@ -72,10 +72,10 @@ public class ContinuousCharReaderUI extends JFrame {
             public void keyReleased(KeyEvent e) {
                 System.out.println("You released: " + e.getKeyChar());
 
-                // Clear the text field
+                // ripulisce il text field
                 inputField.setText("");
 
-                // Gestiscto le keys rilasciate
+                // gestisco le keys rilasciate
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_W, KeyEvent.VK_UP -> wPressed = false;
                     case KeyEvent.VK_A, KeyEvent.VK_LEFT -> aPressed = false;
@@ -99,9 +99,9 @@ public class ContinuousCharReaderUI extends JFrame {
 
     // calcola il comportamento da seguire quando viene premuto/rilasciato un tasto della tastiera
     private void changeAction() {
-        
+
         if (wPressed) {
-            // se viene premuto w o e (retromarcia) imposto il freno a 0 e considero i casi in cui siano 
+            // se viene premuto w imposto il freno a 0 e considero i casi in cui siano
             // premuti anche i tasi per sterzare (a, d)
             brake = 0.0;
             if (aPressed) { // wa

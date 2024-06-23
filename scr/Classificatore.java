@@ -1,5 +1,8 @@
 package scr;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * permette di classificare un sample passato come parametro al metodo classifica() 
  * e stampa la classe predetta su un file di output.
@@ -54,7 +57,6 @@ public class Classificatore {
         );  */
         //System.out.println("Predicted class is " + predictedClass);
 
-        /* 
         String data = String.format("Predicted class for point (%f, %f, %f, %f, %f, %f, %f, %f, %f) is %d\n", 
             normalize(sample.getAngleToTrackAxis(), -Math.PI, Math.PI),
             normalize(sample.getTrackPosition(), -100, 100),
@@ -75,7 +77,7 @@ public class Classificatore {
         } catch (IOException e) {
             e.printStackTrace();
         } 
-        */
+        
         
         return predictedClass;
     }
