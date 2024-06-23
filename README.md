@@ -13,7 +13,11 @@ In allegato sono forniti quattro (4) documenti:
 
 ### Istruzioni compilazione ed esecuzione
 
-Per compilare il codice fornito è sufficiente posizionarsi nella directory /scr, che contiene al suo interno la directory /src, e lanciare il comando `javac -d ../classes scr/*.java`, successivamente posizionarsi nella directory /classes e lanciare il comando `java scr.Client scr.SimpleDriver host:localhost port:3001 verbose:on` che eseguirà il codice. A questo punto è possibile avviare Torcs e configurare una nuova gara con giocatore *scr_server1,* iniziata la gara l’auto guiderà autonomamente.
+Per compilare il codice fornito è sufficiente accedere alla directory src, e digitare il comando
+ `javac -d ../classes scr/*.java`.
+
+Per lanciare il client Java bisogna posizionarsi nella directory /classes e digitare nella shell il comando `java scr.Client scr.SimpleDriver host:localhost port:3001 verbose:on` il quale provvederà ad eseguire il codice. 
+A questo punto è possibile avviare Torcs e configurare una nuova gara con giocatore *scr_server1,* iniziata la gara l’auto guiderà autonomamente.
 
 ### Strutturazione del codice sorgente
 
